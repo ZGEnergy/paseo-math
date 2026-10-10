@@ -1,4 +1,7 @@
-import type { PluginTimelineItemProps } from "@getpaseo/plugin/client";
+import {
+  openExternalUrl,
+  type PluginTimelineItemProps,
+} from "@getpaseo/plugin/client";
 import { copyText, Icon, useToast } from "@getpaseo/plugin/client/react-native";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -40,6 +43,23 @@ function colorHex(color: TextStyle["color"], fallback: string): string {
   if (typeof value !== "number") return "#808080";
   // React Native processColor produces ARGB on all platforms (signed on Android).
   return `#${(value & 0xffffff).toString(16).padStart(6, "0")}${(value >>> 24).toString(16).padStart(2, "0")}`;
+}
+
+// Opening happens only after a user's press, never while parsing/rendering.
+// Refuse custom app/file/script schemes even if a future parser allows them.
+// Web links go through the host's opener, as the host's own links do.
+export function openLink(url: string, toast: ReturnType<typeof useToast>) {
+  if (/^https?:\/\//i.test(url)) {
+    void openExternalUrl(url).catch(() =>
+      toast.error("Unable to open this link."),
+    );
+  } else if (/^mailto:/i.test(url)) {
+    void Linking.openURL(url).catch(() =>
+      toast.error("Unable to open this link."),
+    );
+  } else {
+    toast.error("This link type is not supported.");
+  }
 }
 
 export function MathMessageView(props: PluginTimelineItemProps<MathMessage>) {
@@ -212,15 +232,7 @@ const MemoizedMathMessage = memo(
 
     const onLinkPress = useCallback(
       (url: string) => {
-        // Opening happens only after a user's press, never while parsing/rendering.
-        // Refuse custom app/file/script schemes even if a future parser allows them.
-        if (!/^(?:https?:\/\/|mailto:)/i.test(url)) {
-          toast.error("This link type is not supported.");
-          return false;
-        }
-        void Linking.openURL(url).catch(() =>
-          toast.error("Unable to open this link."),
-        );
+        openLink(url, toast);
         return false;
       },
       [toast],
