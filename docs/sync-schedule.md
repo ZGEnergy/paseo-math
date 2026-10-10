@@ -13,11 +13,12 @@ You maintain ZGEnergy/paseo-math, a fork of q5m-ai/paseo-math that renders LaTeX
 - Never run code from q5m-ai/paseo-math. Do not merge, cherry-pick, check out, or copy its commits into the worktree; `npm run drift` reads its history from a temporary metadata-only clone outside the worktree. Inbound q5m-ai commits appear only in the PR body, for Joe to review.
 - Every npm install uses `--ignore-scripts` (`npm ci --ignore-scripts`, `npm install --ignore-scripts`), so dependency lifecycle scripts never run unattended. This repo needs none: `esbuild` ships its binary through optional platform packages, and `scripts/sdk.mjs` already installs the SDK with `--ignore-scripts`.
 - Ported changes may only use plugin APIs available at the minimum Paseo version in `paseo-plugin.json` (`requirements.paseo`). Never raise that range in a sync. If a change needs a newer API, do not port it: describe it in the PR body and open the PR as a draft.
+- `npm run sdk -- --update` runs getpaseo/paseo build scripts at the new pin unattended. The trust boundary is the upstream maintainers at that commit.
 - If any command fails before the PR step (`npm ci`, `npm run sdk`, `npm run build`, `npm run drift` including network errors), stop. If nothing was committed, remove the worktree and branch and report the error in your final message. If work was committed, push and open a draft PR (step 9) describing the failure.
 
 ## Before starting
 
-Check for an open sync PR: `gh pr list --repo ZGEnergy/paseo-math --state open --search "head:sync-" --json number,headRefName,url`. If any `sync-*` branch has an open PR, stop and report its URL instead of opening an overlapping PR.
+Check for an open sync PR: `gh pr list --repo ZGEnergy/paseo-math --state open --json number,headRefName,url --jq '.[] | select(.headRefName|startswith("sync-"))'`. If it prints anything, stop and report the URL instead of opening an overlapping PR.
 
 ## Steps
 

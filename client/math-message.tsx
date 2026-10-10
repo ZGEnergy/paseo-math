@@ -284,6 +284,7 @@ const MemoizedMathMessage = memo(
             <Text
               key={node.key}
               style={ruleStyles.link}
+              accessibilityRole="link"
               onPress={() => onLinkPress(href)}
             >
               {children}
