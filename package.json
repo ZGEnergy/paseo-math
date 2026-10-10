@@ -15,6 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@getpaseo/highlight": "0.11.2",
     "@resvg/resvg-wasm": "2.6.2",
     "markdown-it": "15.0.1",
     "mathjax-full": "3.2.2",
