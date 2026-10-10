@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
-/// <reference lib="dom" />
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const revealed = vi.fn((text: string, _phase: string) => text);
 vi.mock("@getpaseo/plugin/client/react-native", async (load) => ({
@@ -32,21 +31,45 @@ describe("MathMessageView pacing", () => {
 
   it("keeps an unclosed display formula as text while streaming", () => {
     const view = render(<MathMessageView {...props("Before $$\\int_0^1", "streaming")} />);
-    expect(view.container.textContent).toContain("$$\\int_0^1");
+    expect(dom(view.container).textContent).toContain("$$\\int_0^1");
   });
 });
 
+// tsconfig has no DOM lib (raw DOM stays web-only); type just what tests read.
+type Dom = { textContent: string | null; style: { color: string } };
+const dom = (element: unknown) => element as Dom;
+
 describe("MathErrorBoundary", () => {
-  it("renders the message source when the body throws", () => {
+  const style = { color: "#e6edf3", fontSize: 16, lineHeight: 24 };
+  function Boom(): never {
+    throw new Error("render failed");
+  }
+  afterEach(() => vi.restoreAllMocks());
+
+  it("renders the themed message source when the body throws", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    function Boom(): never {
-      throw new Error("render failed");
-    }
     const view = render(
-      <MathErrorBoundary source="Area $x^2$ and more">
+      <MathErrorBoundary source="Area $x^2$ and more" {...style}>
         <Boom />
       </MathErrorBoundary>,
     );
-    expect(view.container.textContent).toBe("Area $x^2$ and more");
+    const text = view.getByText("Area $x^2$ and more");
+    expect(dom(text).style.color).toBe("rgb(230, 237, 243)");
+  });
+
+  it("recovers when the source changes", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const view = render(
+      <MathErrorBoundary source="A $" {...style}>
+        <Boom />
+      </MathErrorBoundary>,
+    );
+    expect(dom(view.container).textContent).toBe("A $");
+    view.rerender(
+      <MathErrorBoundary source="A $x$" {...style}>
+        <span>ok</span>
+      </MathErrorBoundary>,
+    );
+    expect(dom(view.container).textContent).toBe("ok");
   });
 });

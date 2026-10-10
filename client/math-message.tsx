@@ -243,7 +243,12 @@ const MemoizedMathMessage = memo(
     }, [sourceText, toast]);
 
     return (
-      <MathErrorBoundary source={sourceText}>
+      <MathErrorBoundary
+        source={sourceText}
+        color={colors.foreground}
+        fontSize={fontSize}
+        lineHeight={fontSize * 1.5}
+      >
         <View
           style={{ minWidth: 0, width: "100%", paddingRight: 44, minHeight: 44 }}
           onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
