@@ -2,7 +2,7 @@
 
 Markdown and LaTeX rendering for assistant messages that contain math in [Paseo](https://github.com/getpaseo/paseo), as a plugin.
 
-This is the ZGEnergy fork of [q5m-ai/paseo-math](https://github.com/q5m-ai/paseo-math), kept current with upstream Paseo 0.11. It builds on work by q5m-ai and ekalvi; see [NOTICE](NOTICE) for attribution and licenses.
+This is an independently maintained fork of [q5m-ai/paseo-math](https://github.com/q5m-ai/paseo-math), kept current with upstream Paseo 0.11 and tracking [getpaseo/paseo](https://github.com/getpaseo/paseo) only. It builds on work by q5m-ai and ekalvi; see [NOTICE](NOTICE) for attribution and licenses.
 
 ## Features
 
@@ -29,8 +29,6 @@ Module "@getpaseo/plugin/client/react-native" is not available in plugin client 
 ```
 
 Update the client to the matching 0.11 release rather than installing the plugin again. Official clients are available from the [Paseo releases page](https://github.com/getpaseo/paseo/releases).
-
-For a host and client still on Paseo `0.7.2`, use [q5m-ai Math `v0.1.0-beta.2`](https://github.com/q5m-ai/paseo-math/releases/tag/v0.1.0-beta.2), not `main`.
 
 ## Install
 

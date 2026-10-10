@@ -28,9 +28,11 @@ no-math, list-copy) and `v9s` (streaming), both git repos under `/tmp` with `cha
 | Workspace image renders | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
 | File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (re-measured on Electron) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
 | Selection copy yields TeX | Pass ([6](#selection-copy)) | Pass ([6](#selection-copy)) | n/a | n/a |
-| Phone load: plugin load after reconnect or app start, first highlighted fence render (client bundle grew) | Pending: Joe | Pending: Joe | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| Phone load: plugin load after reconnect or app start, first highlighted fence render (client bundle grew) | n/a (phone-only check) | n/a (phone-only check) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
 
 Any failed cell blocks cutover. F1 was the only failure and is fixed.
+
+The phone pass ran plugin runtime `0d95af5`. Runtime files are identical through `f0dcebd`.
 
 ### Failures
 

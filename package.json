@@ -2,10 +2,10 @@
   "name": "@q5m-ai/paseo-math",
   "version": "0.1.0",
   "private": true,
-  "description": "Cross-platform Markdown and LaTeX rendering for Paseo 0.8",
+  "description": "Cross-platform Markdown and LaTeX rendering for Paseo 0.11+",
   "type": "module",
   "license": "Apache-2.0",
-  "repository": "github:q5m-ai/paseo-math",
+  "repository": "github:ZGEnergy/paseo-math",
   "scripts": {
     "build": "node scripts/build.mjs",
     "sdk": "node scripts/sdk.mjs",
