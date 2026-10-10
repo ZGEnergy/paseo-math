@@ -9,6 +9,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "sdk": "node scripts/sdk.mjs",
+    "drift": "node scripts/upstream-drift.mjs",
     "smoke": "node --import tsx scripts/smoke.mjs",
     "smoke:hermes": "node --import tsx scripts/hermes-smoke.mjs",
     "typecheck": "tsc --noEmit",
