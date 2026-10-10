@@ -100,6 +100,12 @@ await build({
                 "createNode(token, i)",
                 "createNode(token, i, parentKey)",
               );
+              // markdown-it's source line range; the selection-copy feature maps blocks to lines.
+              source = replaceExact(
+                source,
+                "sourceMeta: token.meta,",
+                "sourceMeta: token.meta,\n    sourceMap: token.map,",
+              );
             }
             return { contents: source, loader: "jsx" };
           },

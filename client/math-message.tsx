@@ -12,6 +12,7 @@ import {
 import { memo, useCallback, useMemo, useRef, useState } from "react";
 import {
   Linking,
+  Platform,
   Pressable,
   Text,
   View,
@@ -28,6 +29,8 @@ import Markdown, {
 } from "./generated/markdown.js";
 import { AssistantImage } from "./assistant-image.js";
 import { Formula } from "./formula.js";
+import { useSelectionCopy } from "./selection-copy.js";
+import { blockDataSet, formulaDataSet } from "./source-map.js";
 import { MathErrorBoundary } from "./error-boundary.js";
 import { HighlightedCode } from "./highlight.js";
 import { classifyHref, FilePathText, isInlineCodePath } from "./links.js";
@@ -47,6 +50,8 @@ markdown.validateLink = (url: string) =>
 // The dependency's runtime retains token.meta, but its public ASTNode type
 // omits sourceMeta. Narrow that field instead of serializing TeX into markup.
 type MathNode = ASTNode & { sourceMeta?: unknown };
+// scripts/build.mjs also keeps markdown-it's [startLine, endLine) on each node.
+type MappedNode = ASTNode & { sourceMap?: [number, number] | null };
 
 function colorHex(color: TextStyle["color"], fallback: string): string {
   if (
@@ -84,6 +89,8 @@ const MemoizedMathMessage = memo(
     const firstSeen = useRef(timestamp.getTime());
     const messageId = item.data.messageId ?? String(firstSeen.current);
     const [width, setWidth] = useState(0);
+    const rowRef = useRef<View>(null);
+    useSelectionCopy(rowRef, sourceText);
     const fontSize = layout.compact ? 14 : 16;
     const styles = useMemo(
       () => ({
@@ -185,7 +192,7 @@ const MemoizedMathMessage = memo(
           typeof meta.source === "string"
             ? meta.source
             : `${node.markup}${node.content}${node.markup === "\\(" ? "\\)" : node.markup === "\\[" ? "\\]" : node.markup}`;
-        return (
+        const formula = (
           <Formula
             key={node.key}
             expression={node.content}
@@ -205,8 +212,36 @@ const MemoizedMathMessage = memo(
             maxInlineWidth={Math.max(1, width - 48)}
           />
         );
+        // The wrapper carries the TeX for web selection copy. display: contents
+        // keeps it out of layout, so inline formulas keep flowing with the text.
+        return Platform.OS === "web" ? (
+          <View
+            key={node.key}
+            style={{ display: "contents" }}
+            {...formulaDataSet(source)}
+          >
+            {formula}
+          </View>
+        ) : (
+          formula
+        );
       };
       return {
+        // Each top-level block records its source line range for web selection copy.
+        body: (node, children, _parents, ruleStyles) => (
+          <View key={node.key} style={ruleStyles._VIEW_SAFE_body}>
+            {children.map((child, index) => (
+              <View
+                key={index}
+                {...blockDataSet(
+                  (node.children[index] as MappedNode | undefined)?.sourceMap,
+                )}
+              >
+                {child}
+              </View>
+            ))}
+          </View>
+        ),
         math_inline: mathRule,
         math_block: mathRule,
         text: (node, _children, _parents, ruleStyles, inherited = {}) => (
@@ -309,6 +344,7 @@ const MemoizedMathMessage = memo(
         lineHeight={fontSize * 1.5}
       >
         <View
+          ref={rowRef}
           style={{ minWidth: 0, width: "100%", paddingRight: 44, minHeight: 44 }}
           onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
         >

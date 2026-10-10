@@ -111,6 +111,51 @@ describe("MathMessageView pacing", () => {
   });
 });
 
+describe("MathMessageView selection copy", () => {
+  type Win = {
+    getSelection(): { removeAllRanges(): void; addRange(range: unknown): void };
+    document: {
+      createRange(): { selectNodeContents(node: unknown): void };
+      createEvent(type: string): { clipboardData?: unknown } & object;
+    };
+  };
+  const win = globalThis as unknown as Win;
+  type Query = {
+    querySelector(s: string): { dispatchEvent(e: object): boolean } | null;
+    querySelectorAll(s: string): ArrayLike<{ getAttribute(n: string): string | null }>;
+  };
+
+  it("marks top-level blocks with source lines and formulas with their TeX", () => {
+    const view = render(<MathMessageView {...props("# Title\n\nArea is $x^2$ here.\n\n- one\n- two")} />);
+    const container = view.container as unknown as Query;
+    const lines = Array.from(container.querySelectorAll("[data-q5m-lines]")).map((e) =>
+      e.getAttribute("data-q5m-lines"),
+    );
+    expect(lines).toEqual(["0:1", "2:3", "4:6"]);
+    const math = Array.from(container.querySelectorAll("[data-q5m-math]")).map((e) =>
+      e.getAttribute("data-q5m-math"),
+    );
+    expect(math).toEqual(["$x^2$"]);
+  });
+
+  it("puts markdown on the clipboard for a selection inside the row and prevents default", () => {
+    const view = render(<MathMessageView {...props("Area is $x^2$ here.")} />);
+    const block = (view.container as unknown as Query).querySelector("[data-q5m-lines]")!;
+    const range = win.document.createRange();
+    range.selectNodeContents(block);
+    const selection = win.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const set = vi.fn();
+    const event = win.document.createEvent("Event") as { clipboardData?: unknown } & Event;
+    event.initEvent("copy", true, true);
+    event.clipboardData = { setData: set };
+    block.dispatchEvent(event);
+    expect(set).toHaveBeenCalledWith("text/plain", "Area is $x^2$ here.");
+    expect(event.defaultPrevented).toBe(true);
+  });
+});
+
 // tsconfig has no DOM lib (raw DOM stays web-only); type just what tests read.
 type Dom = { textContent: string | null; style: { color: string } };
 const dom = (element: unknown) => element as Dom;
