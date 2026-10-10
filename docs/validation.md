@@ -24,9 +24,9 @@ no-math, list-copy) and `v9s` (streaming), both git repos under `/tmp` with `cha
 | Theme switch updates formulas and highlight colors | Pass ([3](#theme-switch)) | Pass ([3](#theme-switch)) | Pending: Joe | Pending: Joe |
 | Invalid formula falls back to source | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
 | 50-formula message responsiveness | Pass ([5](#50-formula-message)) | Pass ([5](#50-formula-message)) | Pending: Joe | Pending: Joe |
-| Highlighted fence | Pass, after [F1](#failures) fix | Pass, after [F1](#failures) fix (same renderer; re-verified in browser) | Pending: Joe | Pending: Joe |
+| Highlighted fence | Pass, after [F1](#failures) fix | Pass, after [F1](#failures) fix (re-measured on Electron) | Pending: Joe | Pending: Joe |
 | Workspace image renders | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
-| File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (same renderer; re-verified in browser) | Pending: Joe | Pending: Joe |
+| File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (re-measured on Electron) | Pending: Joe | Pending: Joe |
 | Selection copy yields TeX | Pass ([6](#selection-copy)) | Pass ([6](#selection-copy)) | n/a | n/a |
 
 Any failed cell blocks cutover. F1 was the only failure and is fixed.
@@ -47,8 +47,12 @@ code. `FilePathText` (the `[the notes](file)` link) stays in the body font like 
 After the fix, Browser, computed style of the `basics` reply (`const`, `number`, `sqrt` token
 spans and the `src/index.ts` inline code) is `SFMono-Regular, Menlo, Monaco, Consolas, "Liberation
 Mono", "Courier New", monospace` for every element:
-[basics-web-mono.png](validation/basics-web-mono.png). Electron runs the same renderer and was not
-re-run.
+[basics-web-mono.png](validation/basics-web-mono.png). Electron, re-run after rebuilding and reloading
+the plugin at `0d95af5` (same `basics.cjs` check over CDP, window 1200x800): the same computed value for
+every fence token span, the fence outer element, and the `src/index.ts` inline code, with the same four
+token colors, the path and link accent `rgb(32, 116, 74)`, and the invalid formula still shown as source.
+Clicking the path and the link again left the URL, open pages, and chat DOM size unchanged, with no dialog,
+popup, or toast: [basics-electron-mono.png](validation/basics-electron-mono.png).
 
 | Element | Before | After |
 | --- | --- | --- |
@@ -123,9 +127,11 @@ that changed the text length. Gaps are between visible changes.
 
 The plugin row grows steadily from the first character (about 15 characters to about 2300 over 5.5 s)
 with smaller and more frequent steps than the host. Both snap at the end of the turn, as the host's
-reveal does when the phase leaves `streaming`. The plugin's final jump is larger. At the end the row
-length overshoots to 2780 and settles at 2357 characters, which is consistent with formula source
-showing briefly before its image replaces it. Formula images appear during the stream
+reveal does when the phase leaves `streaming`. The plugin's end snap is larger: 484 characters on web
+and 514 on Electron, against 245 and 218 for the host's largest jump. Near the end the plugin row's
+length also overshoots (to 2780) and then settles at 2357 characters. The cause of the overshoot is
+unverified; one possible explanation is formula source showing briefly before its image replaces it,
+but no check was run for it. Formula images appear during the stream
 ([mid-stream, web](validation/stream-math-web.png), [mid-stream, Electron](validation/stream-math-electron.png),
 host for comparison: [web](validation/stream-host-web.png), [Electron](validation/stream-host-electron.png)).
 
@@ -188,6 +194,9 @@ Workspaces on the dev daemon for this pass:
 | `v9w` | `v9w-matrix` | Basics message, no-math message, list-copy message |
 | `v9s` | `v9s-stream` | Send `docs/validation/prompts/stream-long.txt` and `stream-host.txt` to watch the pace |
 | `m0-agents5` / `m0-agents6` | `m0-step5-perf` / `m0-step5-cold` | 50-formula streaming / open and scroll |
+
+The `v9w`, `v9s`, and `m0-agents*` workspaces are directories under `/tmp` on the dev host. They are lost
+on a reboot or `/tmp` cleanup; recreate them from the prompts in `docs/validation/prompts/` if so.
 
 Check on each phone, one row per matrix row:
 
@@ -442,5 +451,8 @@ from the phone. You can also send the prompt file from the laptop:
 Record the results here under "Device results".
 
 #### Device results
+
+This section covers milestone 0 only. The phone cells of the final matrix at the top of this
+document are still pending.
 
 2026-10-10, Joe: iOS and Android pass — formulas render and stream; no visible input or scroll lag.

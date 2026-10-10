@@ -20,7 +20,7 @@ A message is rendered by this plugin only when it contains math; every other mes
 
 **Requires Paseo 0.11+ on both the host daemon and the client app.** Build, typecheck, and compiler smoke validation use the 0.11.2 SDK at `getpaseo/paseo@7868f5caf6`.
 
-Validated on Paseo 0.11.2 in a browser and in the desktop app. iOS and Android passes are tracked in [docs/validation.md](docs/validation.md), along with the failures found so far. Automated tests are not a substitute for testing those clients.
+Validated on Paseo 0.11.2 in a browser and in the Electron dev app on Linux. iOS and Android passes are tracked in [docs/validation.md](docs/validation.md), along with the failures found so far. Automated tests are not a substitute for testing those clients.
 
 Upgrading a host does not upgrade its Android, desktop, or other client apps. A client older than 0.11, such as Paseo `0.7.2`, cannot load the current plugin and can report:
 

@@ -18,6 +18,7 @@
     "packages/app/src/components/highlighted-code-block.tsx",
     "packages/app/src/utils/highlight-cache.ts",
     "packages/app/src/styles/markdown-styles.ts",
+    "packages/app/src/styles/theme.ts",
     "packages/app/src/utils/markdown-parser.ts",
     "packages/app/src/utils/assistant-markdown-parser.ts",
     "packages/app/src/utils/assistant-image-source.ts",

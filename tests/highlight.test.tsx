@@ -26,6 +26,7 @@ describe("highlighted fences", () => {
     expect(unquote(keyword?.style.fontFamily)).toBe(MONO_FONT_FAMILY);
     expect(MONO_FONT_FAMILY).toContain("SFMono-Regular");
     const plain = render(<HighlightedCode code="hello" info="nosuchlang" surface0={theme.colors.surface0} style={{}} />);
+    expect(spans(plain.container).length).toBeGreaterThan(0);
     expect(spans(plain.container).every((s) => unquote(s.style.fontFamily) === MONO_FONT_FAMILY)).toBe(true);
   });
 
