@@ -1,4 +1,4 @@
-type AssistantItem = { type: "assistant_message"; text: string };
+type AssistantItem = { type: "assistant_message"; text: string; messageId?: string };
 type Phase = "streaming" | "complete";
 
 export function createTransformer(hasMath: (text: string) => boolean) {
@@ -33,7 +33,11 @@ export function createTransformer(hasMath: (text: string) => boolean) {
           type: "plugin" as const,
           kind: "math-message",
           version: 2,
-          data: { text: item.text, phase },
+          data: {
+            text: item.text,
+            phase,
+            ...(item.messageId ? { messageId: item.messageId } : {}),
+          },
         },
       ],
     };

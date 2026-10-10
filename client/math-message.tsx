@@ -9,7 +9,7 @@ import {
   useRevealedText,
   useToast,
 } from "@getpaseo/plugin/client/react-native";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
 import {
   Linking,
   Pressable,
@@ -78,7 +78,11 @@ const MemoizedMathMessage = memo(
     const colors = theme.colors;
     const toast = useToast();
     const workspaceRoot = useAgent(agentId, (agent) => agent.cwd) ?? undefined;
-    const messageTime = timestamp.getTime();
+    // The host bumps `timestamp` on every streamed chunk, so it cannot identify
+    // the message. Prefer the protocol messageId; otherwise pin the first
+    // timestamp this mounted component saw.
+    const firstSeen = useRef(timestamp.getTime());
+    const messageId = item.data.messageId ?? String(firstSeen.current);
     const [width, setWidth] = useState(0);
     const fontSize = layout.compact ? 14 : 16;
     const styles = useMemo(
@@ -254,7 +258,7 @@ const MemoizedMathMessage = memo(
             alt={String(node.attributes.alt ?? "")}
             workspaceRoot={workspaceRoot}
             hostId={host.id}
-            messageKey={`${agentId}\0${messageTime}`}
+            messageKey={`${agentId}\0${messageId}`}
           />
         ),
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
@@ -282,7 +286,7 @@ const MemoizedMathMessage = memo(
       colors.surface0,
       host.id,
       agentId,
-      messageTime,
+      messageId,
       onLinkPress,
       width,
       workspaceRoot,

@@ -40,31 +40,49 @@ describe("MathMessageView local images", () => {
     expect(view.getByText("doc")).toBeTruthy();
   });
 
-  it("re-reads the same path for a later message", async () => {
-    const reads = () => rpc.mock.calls.filter(([input]) => "path" in input && input.path === "iterate.png");
-    const text = "![x](iterate.png) and $a$";
-    const first = render(<MathMessageView {...props(text)} timestamp={new Date(1000)} />);
+  const reads = (name: string) =>
+    rpc.mock.calls.filter(([input]) => "path" in input && input.path === name);
+
+  it("reads once while streamed chunks advance the timestamp", async () => {
+    const view = render(<MathMessageView {...props("![x](ticks.png) and $a$", "streaming")} timestamp={new Date(1000)} />);
+    await waitFor(() => expect(html(view.container)).toContain("TESTPNG"));
+    const before = find(view.container, '[style*="data:image"]');
+    expect(before).toBeTruthy();
+    view.rerender(<MathMessageView {...props("![x](ticks.png) and $a$ more", "streaming")} timestamp={new Date(1500)} />);
+    view.rerender(<MathMessageView {...props("![x](ticks.png) and $a$ more words", "streaming")} timestamp={new Date(2000)} />);
+    await waitFor(() => expect(view.getByText(/more words/)).toBeTruthy());
+    expect(reads("ticks.png")).toHaveLength(1);
+    expect(find(view.container, '[style*="data:image"]')).toBe(before);
+  });
+
+  it("reuses the read for a remount of the same messageId with a new timestamp", async () => {
+    const text = "![x](same-id.png) and $a$";
+    const first = render(<MathMessageView {...props(text, "complete", "m1")} timestamp={new Date(1000)} />);
     await waitFor(() => expect(html(first.container)).toContain("TESTPNG"));
     first.unmount();
-    // The same message mounting again reuses the read; a newer message reads the file again.
-    const remount = render(<MathMessageView {...props(text)} timestamp={new Date(1000)} />);
+    const remount = render(<MathMessageView {...props(text, "complete", "m1")} timestamp={new Date(9000)} />);
     await waitFor(() => expect(html(remount.container)).toContain("TESTPNG"));
-    expect(reads()).toHaveLength(1);
-    const later = render(<MathMessageView {...props(text)} timestamp={new Date(2000)} />);
+    expect(reads("same-id.png")).toHaveLength(1);
+  });
+
+  it("re-reads the same path for a different message", async () => {
+    const text = "![x](iterate.png) and $a$";
+    const first = render(<MathMessageView {...props(text, "complete", "m1")} />);
+    await waitFor(() => expect(html(first.container)).toContain("TESTPNG"));
+    const later = render(<MathMessageView {...props(text, "complete", "m2")} />);
     await waitFor(() => expect(html(later.container)).toContain("TESTPNG"));
-    expect(reads()).toHaveLength(2);
+    expect(reads("iterate.png")).toHaveLength(2);
   });
 
   it("neither re-reads nor remounts an image when streamed text is appended", async () => {
-    const reads = () => rpc.mock.calls.filter(([input]) => "path" in input && input.path === "stream.png");
     const view = render(<MathMessageView {...props("![x](stream.png) and $a$", "streaming")} />);
     await waitFor(() => expect(html(view.container)).toContain("TESTPNG"));
-    const before = find(view.container, 'img[src^="data:"], [style*="data:image"]');
+    const before = find(view.container, '[style*="data:image"]');
     expect(before).toBeTruthy();
     view.rerender(<MathMessageView {...props("![x](stream.png) and $a$ more text", "streaming")} />);
     await waitFor(() => expect(view.getByText(/more text/)).toBeTruthy());
-    expect(reads()).toHaveLength(1);
-    expect(find(view.container, 'img[src^="data:"], [style*="data:image"]')).toBe(before);
+    expect(reads("stream.png")).toHaveLength(1);
+    expect(find(view.container, '[style*="data:image"]')).toBe(before);
   });
 });
 

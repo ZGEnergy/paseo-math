@@ -6,10 +6,10 @@ export const theme = {
   },
 };
 
-export function props(text: string, phase: "streaming" | "complete" = "complete") {
+export function props(text: string, phase: "streaming" | "complete" = "complete", messageId?: string) {
   return {
     agentId: "agent-1",
-    item: { type: "plugin" as const, kind: "math-message", version: 2, data: { text, phase } },
+    item: { type: "plugin" as const, kind: "math-message", version: 2, data: { text, phase, ...(messageId ? { messageId } : {}) } },
     timestamp: new Date(0),
     theme,
     host: { id: "host-1", label: "Host" },

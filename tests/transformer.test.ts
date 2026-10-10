@@ -22,4 +22,11 @@ describe("assistant math transformer", () => {
     const result = transform({ item, phase: "complete" });
     expect(result?.items[0]).toMatchObject({ data: { phase: "complete" } });
   });
+
+  it("carries the protocol messageId when present and omits it otherwise", () => {
+    const withId = transform({ item: { type: "assistant_message", text: "$a$", messageId: "m-1" } as never, phase: "complete" });
+    expect(withId?.items[0]).toMatchObject({ version: 2, data: { messageId: "m-1" } });
+    const without = transform({ item: { type: "assistant_message", text: "$b$" } as never, phase: "complete" });
+    expect(without?.items[0].data).toEqual({ text: "$b$", phase: "complete" });
+  });
 });
