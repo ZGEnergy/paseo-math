@@ -1,57 +1,88 @@
 import { useRpc } from "@getpaseo/plugin/client";
-import { useEffect, useState } from "react";
-import { Image, Text } from "react-native";
-import { readImage } from "../shared/image.js";
+import { useEffect, useMemo, useState } from "react";
+import { Image, Text, View } from "react-native";
+import { readImage, type ImageOutput } from "../shared/image.js";
+import { imageKey, peekImage, requestImage } from "./image-cache.js";
+import { localFileSourceToPath } from "./vendor/local-file-source.js";
 import { resolveFilePreviewReadTarget } from "./vendor/preview-target.js";
 
-type State = { kind: "loading" } | { kind: "ready"; uri: string } | { kind: "failed" };
+const PLACEHOLDER_HEIGHT = 120;
+type Size = { key: string; width: number | undefined; ratio: number };
 
 export function AssistantImage({
   source,
   alt,
   workspaceRoot,
+  hostId = "",
 }: {
   source: string;
   alt: string;
   workspaceRoot: string | undefined;
+  hostId?: string;
 }) {
   const call = useRpc(readImage);
   const trimmed = source.trim();
   const direct = /^(https?:|data:|blob:)/i.test(trimmed);
-  const target = direct ? null : resolveFilePreviewReadTarget({ path: trimmed, workspaceRoot });
+  const target = direct
+    ? null
+    : resolveFilePreviewReadTarget({ path: localFileSourceToPath(trimmed), workspaceRoot });
   const cwd = target?.cwd;
   const filePath = target?.path;
-  const [state, setState] = useState<State>({ kind: "loading" });
+  const key = cwd !== undefined && filePath !== undefined ? imageKey(hostId, cwd, filePath) : null;
+  // State is tagged with its key so a changed source never renders the previous image.
+  const [loaded, setLoaded] = useState<{ key: string; result: ImageOutput | null } | null>(null);
+  const cached = key ? peekImage(key) : undefined;
+  const result = cached ?? (key !== null && loaded?.key === key ? loaded.result : undefined);
 
   useEffect(() => {
-    if (cwd === undefined || filePath === undefined) return;
+    if (key === null || cwd === undefined || filePath === undefined || peekImage(key)) return;
     let current = true;
-    setState({ kind: "loading" });
-    call({ cwd, path: filePath })
-      .then((result) => {
-        if (!current) return;
-        setState(
-          result.ok
-            ? { kind: "ready", uri: `data:${result.mime};base64,${result.base64}` }
-            : { kind: "failed" },
-        );
-      })
-      .catch(() => {
-        if (current) setState({ kind: "failed" });
-      });
+    void requestImage(key, { cwd, path: filePath }, call).then((next) => {
+      if (current) setLoaded({ key, result: next });
+    });
     return () => {
       current = false;
     };
-  }, [call, cwd, filePath]);
+  }, [call, key, cwd, filePath]);
 
-  const shown: State = direct ? { kind: "ready", uri: trimmed } : target ? state : { kind: "failed" };
-  if (shown.kind === "failed") return <Text selectable>{alt || source}</Text>;
-  if (shown.kind === "loading") return null;
+  const uri = useMemo(
+    () =>
+      direct ? trimmed : result?.ok ? `data:${result.mime};base64,${result.base64}` : undefined,
+    [direct, trimmed, result],
+  );
+  const sizeKey = direct ? trimmed : key;
+  const [size, setSize] = useState<Size | null>(null);
+
+  useEffect(() => {
+    if (!uri || sizeKey === null) return;
+    let current = true;
+    Image.getSize(
+      uri,
+      (width, height) => {
+        if (current && width > 0 && height > 0) setSize({ key: sizeKey, width, ratio: width / height });
+      },
+      () => {
+        if (current) setSize({ key: sizeKey, width: undefined, ratio: 16 / 9 });
+      },
+    );
+    return () => {
+      current = false;
+    };
+  }, [uri, sizeKey]);
+
+  if (key === null && !direct) return <Text selectable>{alt || source}</Text>;
+  if (result === null || (result && !result.ok)) return <Text selectable>{alt || source}</Text>;
+  if (!uri) return <View style={{ width: "100%", height: PLACEHOLDER_HEIGHT }} />;
+  const known = size && size.key === sizeKey ? size : null;
   return (
     <Image
       accessibilityLabel={alt}
-      source={{ uri: shown.uri }}
-      style={{ width: "100%", aspectRatio: 16 / 9 }}
+      source={{ uri }}
+      style={
+        known
+          ? { width: "100%", maxWidth: known.width, aspectRatio: known.ratio }
+          : { width: "100%", height: PLACEHOLDER_HEIGHT }
+      }
       resizeMode="contain"
     />
   );

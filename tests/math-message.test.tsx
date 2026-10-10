@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // tsconfig has no DOM lib; type just what tests read.
@@ -10,15 +10,48 @@ vi.mock("@getpaseo/plugin/client/react-native", async (load) => ({
   ...(await load<object>()),
   useRevealedText: (text: string, phase: string) => revealed(text, phase),
 }));
+const rpc = vi.fn(async (input: object) =>
+  "path" in input
+    ? { ok: true, mime: "image/png", base64: "TESTPNG" }
+    : { ok: false, reason: "invalid" },
+);
 vi.mock("@getpaseo/plugin/client", () => ({
-  useRpc: () => async () => ({ ok: false, reason: "invalid" }),
-  useAgent: () => null,
+  useRpc: () => rpc,
+  useAgent: () => "/repo",
   openExternalUrl: vi.fn(async () => {}),
 }));
 
 const { MathMessageView } = await import("../client/math-message.js");
 const { MathErrorBoundary } = await import("../client/error-boundary.js");
 const { props } = await import("./fixtures.js");
+
+describe("MathMessageView local images", () => {
+  const find = (container: unknown, selector: string) =>
+    (container as { querySelector(s: string): unknown }).querySelector(selector);
+
+  it("reads file:// image sources through the RPC", async () => {
+    render(<MathMessageView {...props("![x](file:///abs/fileuri.png) and $x$")} />);
+    await waitFor(() => expect(rpc).toHaveBeenCalledWith({ cwd: "/", path: "/abs/fileuri.png" }));
+  });
+
+  it("keeps file:// links inert", () => {
+    const view = render(<MathMessageView {...props("See [doc](file:///abs/notes.md) and $x$")} />);
+    expect(find(view.container, "a")).toBeNull();
+    expect(view.getByText("doc")).toBeTruthy();
+  });
+
+  it("neither re-reads nor remounts an image when streamed text is appended", async () => {
+    const reads = () => rpc.mock.calls.filter(([input]) => "path" in input && input.path === "stream.png");
+    const view = render(<MathMessageView {...props("![x](stream.png) and $a$", "streaming")} />);
+    await waitFor(() => expect(html(view.container)).toContain("TESTPNG"));
+    const before = find(view.container, 'img[src^="data:"], [style*="data:image"]');
+    expect(before).toBeTruthy();
+    view.rerender(<MathMessageView {...props("![x](stream.png) and $a$ more text", "streaming")} />);
+    await waitFor(() => expect(view.getByText(/more text/)).toBeTruthy());
+    expect(reads()).toHaveLength(1);
+    expect(find(view.container, 'img[src^="data:"], [style*="data:image"]')).toBe(before);
+  });
+});
 
 describe("MathMessageView images", () => {
   it("renders markdown images through AssistantImage", () => {

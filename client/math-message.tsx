@@ -38,6 +38,12 @@ const markdown = new MarkdownIt({
   linkify: true,
 }).use(markdownMath);
 
+// Assistant messages may link and embed local files, as in the host's
+// assistant-markdown-parser.ts. file:// links classify as "file" and stay inert.
+const defaultValidateLink = markdown.validateLink.bind(markdown);
+markdown.validateLink = (url: string) =>
+  url.trim().toLowerCase().startsWith("file://") || defaultValidateLink(url);
+
 // The dependency's runtime retains token.meta, but its public ASTNode type
 // omits sourceMeta. Narrow that field instead of serializing TeX into markup.
 type MathNode = ASTNode & { sourceMeta?: unknown };
@@ -245,6 +251,7 @@ const MemoizedMathMessage = memo(
             source={String(node.attributes.src ?? "")}
             alt={String(node.attributes.alt ?? "")}
             workspaceRoot={workspaceRoot}
+            hostId={host.id}
           />
         ),
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
