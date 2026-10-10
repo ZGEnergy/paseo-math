@@ -15,6 +15,17 @@ const rpc = vi.fn(async (input: object) =>
     ? { ok: true, mime: "image/png", base64: "TESTPNG" }
     : { ok: false, reason: "invalid" },
 );
+// A rule (not a child component) throws for one sentinel inline-code path, to exercise the boundary.
+vi.mock("../client/links.js", async (load) => {
+  const actual = await load<typeof import("../client/links.js")>();
+  return {
+    ...actual,
+    isInlineCodePath: (text: string) => {
+      if (text === "BOOM_RULE_SENTINEL") throw new Error("rule failed");
+      return actual.isInlineCodePath(text);
+    },
+  };
+});
 vi.mock("@getpaseo/plugin/client", () => ({
   useRpc: () => rpc,
   useAgent: () => "/repo",
@@ -113,9 +124,21 @@ describe("MathMessageView pacing", () => {
     expect(revealed).toHaveBeenLastCalledWith("Area $x$", "complete");
   });
 
-  it("keeps an unclosed display formula as text while streaming", () => {
+  it("keeps an unclosed display formula as text while streaming, then renders it once closed", async () => {
     const view = render(<MathMessageView {...props("Before $$\\int_0^1", "streaming")} />);
+    const query = view.container as unknown as { querySelector(s: string): unknown };
     expect(dom(view.container).textContent).toContain("$$\\int_0^1");
+    expect(query.querySelector("[data-q5m-math]")).toBeNull();
+    expect(rpc).not.toHaveBeenCalledWith(expect.objectContaining({ expression: "\\int_0^1 x\\,dx" }));
+
+    view.rerender(<MathMessageView {...props("Before $$\\int_0^1 x\\,dx$$", "streaming")} />);
+    // The Formula component now owns the span: the math wrapper carries the TeX and Formula asked the RPC to render it.
+    expect(query.querySelector("[data-q5m-math]")).toBeTruthy();
+    await waitFor(() =>
+      expect(rpc).toHaveBeenCalledWith(
+        expect.objectContaining({ expression: "\\int_0^1 x\\,dx", display: true }),
+      ),
+    );
   });
 });
 
@@ -167,6 +190,20 @@ describe("MathMessageView selection copy", () => {
 // tsconfig has no DOM lib (raw DOM stays web-only); type just what tests read.
 type Dom = { textContent: string | null; style: { color: string } };
 const dom = (element: unknown) => element as Dom;
+
+describe("MathMessageView render failures", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("falls back to the themed raw source when a render rule throws", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const source = "Use `BOOM_RULE_SENTINEL` with $x$";
+    const view = render(<MathMessageView {...props(source)} />);
+    const text = view.getByText(source);
+    expect(dom(text).style.color).toBe("rgb(230, 237, 243)");
+    expect(dom(view.container).textContent).toContain(source);
+    expect(error).toHaveBeenCalled();
+  });
+});
 
 describe("MathErrorBoundary", () => {
   const style = { color: "#e6edf3", fontSize: 16, lineHeight: 24 };

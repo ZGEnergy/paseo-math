@@ -16,9 +16,9 @@ describe("upstream drift report", { timeout: 60_000 }, () => {
     // ab10a669 (upstream 0.11.1 release) predates 73390346 "fix(ios): address clipped chat and Markdown text";
     // fa0460b (q5m-ai's first commit) predates ccfcd9a. No watched path changed between e81d5d02b1 and the pin.
     const report = drift("--from-upstream", "ab10a669", "--from-base", "fa0460b");
-    const files = report.upstream.commits.flatMap((c: { files: string[] }) => c.files);
-    expect(report.upstream.commits.length).toBeGreaterThan(0);
-    expect(files.some((f: string) => f.startsWith("packages/"))).toBe(true);
+    expect(report.upstream.commits.map((c: { sha: string }) => c.sha)).toContainEqual(
+      expect.stringMatching(/^73390346/),
+    );
     expect(report.base.commits.map((c: { sha: string }) => c.sha.slice(0, 7))).toContain("ccfcd9a");
   });
 

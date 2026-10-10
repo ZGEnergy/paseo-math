@@ -28,6 +28,7 @@ no-math, list-copy) and `v9s` (streaming), both git repos under `/tmp` with `cha
 | Workspace image renders | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
 | File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (re-measured on Electron) | Pending: Joe | Pending: Joe |
 | Selection copy yields TeX | Pass ([6](#selection-copy)) | Pass ([6](#selection-copy)) | n/a | n/a |
+| Phone load: plugin load after reconnect or app start, first highlighted fence render (client bundle grew) | Pending: Joe | Pending: Joe | Pending: Joe | Pending: Joe |
 
 Any failed cell blocks cutover. F1 was the only failure and is fixed.
 
@@ -215,8 +216,17 @@ Check on each phone, one row per matrix row:
 7. Image: `chart` renders about 200x150 (not stretched to the full width); `big chart` fits the width.
 8. File path: `src/index.ts` and "the notes" use the accent color. Tap both: nothing happens.
 9. Selection copy: n/a on phones.
+10. Load timing (the client bundle grew from about 0.6 MB to about 2.1 MB with the highlighter; it is
+    evaluated lazily but still downloaded and parsed on the phone). Time with a stopwatch or screen
+    recording, and record seconds per case:
+    - Plugin load: force-quit the app (or toggle airplane mode off to reconnect), reopen it on `v9w-matrix`,
+      and time from the app showing the chat to the "Validation basics" formulas appearing. Compare with
+      `no-math.txt`, which never loads the plugin.
+    - First highlighted fence: after a cold start, scroll to the first `ts` fence in "Validation basics" and
+      time from the fence entering view to colored tokens. Note any blank or unstyled flash.
+    A visible stall on either blocks rollout.
 
-Record the result per row under "Device results" here.
+Record the result per row (rows 1-10) under "Device results" here.
 
 #### Device results
 

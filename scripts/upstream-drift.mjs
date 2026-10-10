@@ -45,12 +45,13 @@ try {
     return rewrite(want).trim() !== have.trim();
   });
 
-  // git grep exits 1 when nothing matches.
+  // git grep exits 1 when nothing matches; any other failure is a real error.
   function hasExtension() {
     try {
       return git(sdk, "grep", "-l", "addMarkdownExtension", upstreamHead, "--", "packages/plugin/src") !== "";
-    } catch {
-      return false;
+    } catch (error) {
+      if (error.status === 1) return false;
+      throw error;
     }
   }
 
