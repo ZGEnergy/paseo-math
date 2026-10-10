@@ -8,7 +8,6 @@ import {
 import { memo, useCallback, useMemo, useState } from "react";
 import {
   Linking,
-  Platform,
   Pressable,
   Text,
   View,
@@ -25,6 +24,7 @@ import Markdown, {
 } from "./generated/markdown.js";
 import { Formula } from "./formula.js";
 import { MathErrorBoundary } from "./error-boundary.js";
+import { HighlightedCode } from "./highlight.js";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -189,33 +189,25 @@ const MemoizedMathMessage = memo(
           </Text>
         ),
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
-          <Text
+          <HighlightedCode
             key={node.key}
-            selectable
-            style={[
-              inherited,
-              ruleStyles.fence,
-              { fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" },
-            ]}
-          >
-            {node.content.replace(/\n$/, "")}
-          </Text>
+            code={node.content.replace(/\n$/, "")}
+            info={(node as ASTNode & { sourceInfo?: string }).sourceInfo}
+            theme={theme}
+            style={[inherited, ruleStyles.fence]}
+          />
         ),
         code_block: (node, _children, _parents, ruleStyles, inherited = {}) => (
-          <Text
+          <HighlightedCode
             key={node.key}
-            selectable
-            style={[
-              inherited,
-              ruleStyles.code_block,
-              { fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" },
-            ]}
-          >
-            {node.content.replace(/\n$/, "")}
-          </Text>
+            code={node.content.replace(/\n$/, "")}
+            info={null}
+            theme={theme}
+            style={[inherited, ruleStyles.code_block]}
+          />
         ),
       };
-    }, [colors.foreground, host.id, width]);
+    }, [colors.foreground, host.id, theme, width]);
 
     const onLinkPress = useCallback(
       (url: string) => {
@@ -292,6 +284,7 @@ const MemoizedMathMessage = memo(
       previous.layout.compact === next.layout.compact &&
       a.foreground === b.foreground &&
       a.foregroundMuted === b.foregroundMuted &&
+      a.surface0 === b.surface0 &&
       a.surface1 === b.surface1 &&
       a.surface2 === b.surface2 &&
       a.border === b.border &&
