@@ -1,6 +1,5 @@
 {
   "upstream": { "repo": "https://github.com/getpaseo/paseo.git", "commit": "7868f5caf6515543a81ffc58fe941e15e917dcf9" },
-  "base": { "repo": "https://github.com/q5m-ai/paseo-math.git", "commit": "ccfcd9a" },
   "vendor": [
     { "local": "client/vendor/path.ts", "upstream": "packages/app/src/utils/path.ts", "headerLines": 1 },
     { "local": "client/vendor/assistant-file-links-parse.ts", "upstream": "packages/app/src/assistant-file-links/parse.ts" },
