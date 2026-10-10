@@ -76,4 +76,47 @@ describe("selectionToMarkdown", () => {
     const r = row();
     expect(selectionToMarkdown(rangeBetween(text("p1"), 1, text("p1"), 1), r, source)).toBeNull();
   });
+
+  describe("inside one block", () => {
+    const listSource = "- one\n- two $x$\n\nArea $y$ here";
+    function blocks(): Row {
+      document.body.innerHTML = `
+        <div id="row">
+          <div data-q5m-lines="0:2"><div id="b1">one</div><div><span id="b2">two </span><span data-q5m-math="$x$"><span id="fx">x</span></span></div></div>
+          <div data-q5m-lines="3:4"><span id="a1">Area </span><span data-q5m-math="$y$"><span id="fy">y</span></span><span id="a2"> here</span></div>
+        </div>`;
+      return document.getElementById("row") as unknown as Row;
+    }
+
+    it("returns null for a multi-line block selection without formulas", () => {
+      const r = blocks();
+      expect(selectionToMarkdown(rangeBetween(text("b1"), 0, text("b2"), 2), r, listSource)).toBeNull();
+    });
+
+    it("copies the block's source lines when a multi-line block selection holds a formula", () => {
+      const r = blocks();
+      expect(selectionToMarkdown(rangeBetween(text("b1"), 0, text("fx"), 1), r, listSource)).toBe(
+        "- one\n- two $x$",
+      );
+    });
+
+    it("replaces a formula the selection starts inside with its whole TeX", () => {
+      const r = blocks();
+      expect(selectionToMarkdown(rangeBetween(text("fy"), 0, text("a2"), 3), r, listSource)).toBe(
+        "$y$ he",
+      );
+    });
+
+    it("replaces a formula the selection ends inside with its whole TeX", () => {
+      const r = blocks();
+      expect(selectionToMarkdown(rangeBetween(text("a1"), 0, text("fy"), 1), r, listSource)).toBe(
+        "Area $y$",
+      );
+    });
+
+    it("returns null when the selection sits entirely inside a formula", () => {
+      const r = blocks();
+      expect(selectionToMarkdown(rangeBetween(text("fy"), 0, text("fy"), 1), r, listSource)).toBeNull();
+    });
+  });
 });

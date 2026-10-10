@@ -46,7 +46,8 @@ function lines(block: DomElement): [number, number] {
 /**
  * Markdown for a selection made inside one math message row, or null to let the
  * host's default copy run (collapsed, leaves the row, or empty result).
- * Inside one block: the selected text with each formula as its TeX source.
+ * Inside one block: null without a formula; with one, the selected text with
+ * each formula as its TeX source (one-line block) or the block's source lines.
  * Across blocks: the source lines of every touched block.
  */
 export function selectionToMarkdown(
@@ -59,19 +60,29 @@ export function selectionToMarkdown(
   const first = blockOf(range.startContainer, row);
   const last = blockOf(range.endContainer, row);
   if (!first || !last) return null;
+  const blockSource = () =>
+    source
+      .split("\n")
+      .slice(lines(first)[0], lines(last)[1])
+      .join("\n");
   if (first === last) {
     const fragment = range.cloneContents();
-    for (const formula of Array.from(fragment.querySelectorAll("[data-q5m-math]"))) {
+    const formulas = Array.from(fragment.querySelectorAll("[data-q5m-math]"));
+    // No formula: the default copy is already right, and replacing it would lose
+    // separators (RN-web renders bullets and table cells as divs without newlines).
+    if (formulas.length === 0) return null;
+    // Several source lines (lists, tables): the rendered text has no separators,
+    // so copy the block's source lines instead.
+    const [start, end] = lines(first);
+    if (end - start !== 1) return blockSource();
+    for (const formula of formulas) {
       formula.replaceWith(
         fragment.ownerDocument.createTextNode(formula.getAttribute("data-q5m-math") ?? ""),
       );
     }
     return fragment.textContent || null;
   }
-  return source
-    .split("\n")
-    .slice(lines(first)[0], lines(last)[1])
-    .join("\n");
+  return blockSource();
 }
 
 export function useSelectionCopy(rowRef: RefObject<unknown>, source: string): void {

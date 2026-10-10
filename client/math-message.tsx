@@ -227,19 +227,22 @@ const MemoizedMathMessage = memo(
         );
       };
       return {
-        // Each top-level block records its source line range for web selection copy.
+        // Each top-level block records its source line range for web selection copy
+        // (dataSet is ignored on native, so skip the extra views there).
         body: (node, children, _parents, ruleStyles) => (
           <View key={node.key} style={ruleStyles._VIEW_SAFE_body}>
-            {children.map((child, index) => (
-              <View
-                key={index}
-                {...blockDataSet(
-                  (node.children[index] as MappedNode | undefined)?.sourceMap,
-                )}
-              >
-                {child}
-              </View>
-            ))}
+            {Platform.OS !== "web"
+              ? children
+              : children.map((child, index) => (
+                  <View
+                    key={index}
+                    {...blockDataSet(
+                      (node.children[index] as MappedNode | undefined)?.sourceMap,
+                    )}
+                  >
+                    {child}
+                  </View>
+                ))}
           </View>
         ),
         math_inline: mathRule,
