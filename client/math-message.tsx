@@ -26,6 +26,7 @@ import Markdown, {
   type RenderFunction,
   type RenderRules,
 } from "./generated/markdown.js";
+import { AssistantImage } from "./assistant-image.js";
 import { Formula } from "./formula.js";
 import { MathErrorBoundary } from "./error-boundary.js";
 import { HighlightedCode } from "./highlight.js";
@@ -238,6 +239,14 @@ const MemoizedMathMessage = memo(
             </Text>
           );
         },
+        image: (node) => (
+          <AssistantImage
+            key={node.key}
+            source={String(node.attributes.src ?? "")}
+            alt={String(node.attributes.alt ?? "")}
+            workspaceRoot={workspaceRoot}
+          />
+        ),
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
           <HighlightedCode
             key={node.key}

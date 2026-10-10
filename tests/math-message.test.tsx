@@ -2,6 +2,9 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+// tsconfig has no DOM lib; type just what tests read.
+const html = (element: unknown) => (element as { innerHTML: string }).innerHTML;
+
 const revealed = vi.fn((text: string, _phase: string) => text);
 vi.mock("@getpaseo/plugin/client/react-native", async (load) => ({
   ...(await load<object>()),
@@ -16,6 +19,13 @@ vi.mock("@getpaseo/plugin/client", () => ({
 const { MathMessageView } = await import("../client/math-message.js");
 const { MathErrorBoundary } = await import("../client/error-boundary.js");
 const { props } = await import("./fixtures.js");
+
+describe("MathMessageView images", () => {
+  it("renders markdown images through AssistantImage", () => {
+    const view = render(<MathMessageView {...props("![chart](https://x.test/c.png) and $x$")} />);
+    expect(html(view.container)).toContain("https://x.test/c.png");
+  });
+});
 
 describe("MathMessageView pacing", () => {
   it("passes the phase to useRevealedText", () => {
