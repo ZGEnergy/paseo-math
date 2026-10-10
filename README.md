@@ -4,17 +4,17 @@ Markdown and LaTeX rendering for math-bearing assistant responses in Paseo, with
 
 ## Compatibility
 
-**Requires Paseo 0.8+ on both the host daemon and the client app; Paseo 0.7 is not supported.** The manifest targets stable Paseo `>=0.8.0`, with no upper bound. Build, typecheck, and compiler smoke validation use the released 0.8.0 SDK; future releases are not individually validated.
+**Requires Paseo 0.11+ on both the host daemon and the client app; earlier releases are not supported.** The manifest targets stable Paseo `>=0.11.0`, with no upper bound. Build, typecheck, and compiler smoke validation use the 0.11.2 SDK at `getpaseo/paseo@7868f5caf6`; future releases are not individually validated.
 
-**Device testing is limited to the macOS app and Android**, previously using Paseo `0.8.0-beta.1`; stable 0.8.0 has not been revalidated on devices. iPhone/iPad and browser clients have not been validated. Automated tests are not a substitute for testing those clients.
+**Device testing is limited to the macOS app and Android**, previously using Paseo `0.8.0-beta.1`; Paseo 0.11 has not been revalidated on devices. iPhone/iPad and browser clients have not been validated. Automated tests are not a substitute for testing those clients.
 
-Upgrading a host does not upgrade its Android, desktop, or other client apps. A Paseo `0.7.2` client cannot load the current plugin and can report:
+Upgrading a host does not upgrade its Android, desktop, or other client apps. A client older than 0.11, such as Paseo `0.7.2`, cannot load the current plugin and can report:
 
 ```text
 Module "@getpaseo/plugin/client/react-native" is not available in plugin client code
 ```
 
-Update the client to the matching 0.8 release rather than installing the plugin again. Official clients are available from the [Paseo releases page](https://github.com/getpaseo/paseo/releases).
+Update the client to the matching 0.11 release rather than installing the plugin again. Official clients are available from the [Paseo releases page](https://github.com/getpaseo/paseo/releases).
 
 For a host and client still on Paseo `0.7.2`, use [Math `v0.1.0-beta.2`](https://github.com/q5m-ai/paseo-math/releases/tag/v0.1.0-beta.2), not `main`.
 
@@ -22,7 +22,7 @@ For a host and client still on Paseo `0.7.2`, use [Math `v0.1.0-beta.2`](https:/
 
 Plugins are trusted code: they execute on the host and inside the client app without sandboxing. Install only code you trust.
 
-You need Git, Node.js **22.22 or newer**, npm, and the **Paseo 0.8 CLI** on the host, with its Paseo daemon running.
+You need Git, Node.js **22.22 or newer**, npm, and the **Paseo 0.11 CLI** on the host, with its Paseo daemon running.
 
 1. In the app, select the host where your agent runs, open **Settings → Plugins**, and turn on **Enable plugins**.
 2. In a terminal on that host, run:
