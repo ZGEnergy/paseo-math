@@ -37,7 +37,7 @@ A weekly sync checks [getpaseo/paseo releases](https://github.com/getpaseo/paseo
 - It tracks stable release tags, not `main`. `npm run drift` reports new releases, host rendering changes, plugin SDK changes, relevant release notes, and unreleased changes on `main` as an early warning.
 - Every new release is re-pinned and run through the full build, test, and smoke gate, even when nothing math-related changed. A break opens a draft pull request.
 - When Paseo adds host APIs that improve math rendering, the sync adopts them. It raises the plugin's minimum Paseo version only up to the version the maintainer's production daemon runs, never beyond. Changes that need a newer Paseo are listed in the pull request as waiting.
-- Nothing merges automatically: a maintainer reviews every sync pull request.
+- The sync merges its own pull request only when it is not a draft, every local gate passed, CI is green, and GitHub reports it mergeable. Anything else stays open as a draft with the reason in a comment.
 
 ## Install
 
