@@ -40,6 +40,14 @@ describe("MathMessageView local images", () => {
     expect(view.getByText("doc")).toBeTruthy();
   });
 
+  it("renders inline code in the host mono font", () => {
+    const view = render(<MathMessageView {...props("Use `src/index.ts` and `x + 1` with $x$")} />);
+    const code = (view.getByText("x + 1") as unknown as { style: { fontFamily: string } });
+    expect(code.style.fontFamily).toContain("SFMono-Regular");
+    const path = (view.getByText("src/index.ts") as unknown as { style: { fontFamily: string } });
+    expect(path.style.fontFamily).toContain("SFMono-Regular");
+  });
+
   const reads = (name: string) =>
     rpc.mock.calls.filter(([input]) => "path" in input && input.path === name);
 

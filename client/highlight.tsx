@@ -10,6 +10,14 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   csharp: "cs", "c#": "cs", objc: "m", "objective-c": "m", markdown: "md", elixir: "ex",
 };
 
+// Same stack as DEFAULT_MONO_FONT_STACK in packages/app/src/styles/theme.ts. RN-web nested Text
+// spans do not inherit fontFamily from the outer Text, so set it on every code Text.
+export const MONO_FONT_FAMILY: string = Platform.select({
+  ios: "ui-monospace",
+  web: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+  default: "monospace",
+});
+
 export function fenceExtension(info: string | null | undefined): string | null {
   const first = info?.trim().split(/\s+/)[0]?.toLowerCase();
   if (!first) return null;
@@ -50,7 +58,7 @@ export function HighlightedCode({
   style: TextStyle | TextStyle[];
 }) {
   const lines = useMemo(() => tokenize(code, fenceExtension(info)), [code, info]);
-  const mono = { fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" };
+  const mono = { fontFamily: MONO_FONT_FAMILY };
   if (!lines) return <Text selectable style={[style, mono]}>{code}</Text>;
   // ponytail: host lets users pick a syntax theme; plugins cannot read it, so use light/dark defaults.
   const { darkHighlightColors, lightHighlightColors } = loadHighlighter();
@@ -58,10 +66,10 @@ export function HighlightedCode({
   return (
     <Text selectable style={[style, mono]}>
       {lines.map((line, index) => (
-        <Text key={index}>
+        <Text key={index} style={mono}>
           {line.map((token, t) =>
             token.style ? (
-              <Text key={t} style={{ color: palette[token.style] }}>{token.text}</Text>
+              <Text key={t} style={[mono, { color: palette[token.style] }]}>{token.text}</Text>
             ) : (
               token.text
             ),

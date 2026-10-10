@@ -2,7 +2,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { darkHighlightColors, lightHighlightColors } from "@getpaseo/highlight";
-import { HighlightedCode, MAX_HIGHLIGHT_CHARS, fenceExtension } from "../client/highlight.js";
+import { HighlightedCode, MAX_HIGHLIGHT_CHARS, MONO_FONT_FAMILY, fenceExtension } from "../client/highlight.js";
 import { theme } from "./fixtures.js";
 
 const light = { colors: { ...theme.colors, surface0: "#ffffff", foreground: "#1f2328" } };
@@ -18,6 +18,15 @@ describe("highlighted fences", () => {
     const view = render(<HighlightedCode code="const x = 1" info="ts" surface0={theme.colors.surface0} style={{}} />);
     const keyword = spans(view.container).find((s) => s.textContent === "const");
     expect(keyword?.style.color).toBe(hexToRgb(darkHighlightColors.keyword));
+  });
+
+  it("sets the host mono font on every token span and on the plain fallback", () => {
+    const tokens = render(<HighlightedCode code="const x = 1" info="ts" surface0={theme.colors.surface0} style={{}} />);
+    const keyword = spans(tokens.container).find((s) => s.textContent === "const");
+    expect(unquote(keyword?.style.fontFamily)).toBe(MONO_FONT_FAMILY);
+    expect(MONO_FONT_FAMILY).toContain("SFMono-Regular");
+    const plain = render(<HighlightedCode code="hello" info="nosuchlang" surface0={theme.colors.surface0} style={{}} />);
+    expect(spans(plain.container).every((s) => unquote(s.style.fontFamily) === MONO_FONT_FAMILY)).toBe(true);
   });
 
   it("picks the light palette on a light surface", () => {
@@ -40,9 +49,14 @@ describe("highlighted fences", () => {
 });
 
 // tsconfig has no DOM lib (raw DOM stays web-only); type just what tests read.
-type Dom = { textContent: string | null; style: { color: string } };
+type Dom = { textContent: string | null; style: { color: string; fontFamily: string } };
 function spans(container: unknown, selector = "span"): Dom[] {
   return Array.from((container as { querySelectorAll(s: string): ArrayLike<Dom> }).querySelectorAll(selector));
+}
+
+// jsdom re-serializes quoted family names with double quotes.
+function unquote(family: string | undefined): string | undefined {
+  return family?.replaceAll('"', "'");
 }
 
 function hexToRgb(hex: string): string {

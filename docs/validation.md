@@ -24,32 +24,37 @@ no-math, list-copy) and `v9s` (streaming), both git repos under `/tmp` with `cha
 | Theme switch updates formulas and highlight colors | Pass ([3](#theme-switch)) | Pass ([3](#theme-switch)) | Pending: Joe | Pending: Joe |
 | Invalid formula falls back to source | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
 | 50-formula message responsiveness | Pass ([5](#50-formula-message)) | Pass ([5](#50-formula-message)) | Pending: Joe | Pending: Joe |
-| Highlighted fence | **Fail** ([F1](#failures)): colors correct, text not monospace | **Fail** ([F1](#failures)): same | Pending: Joe | Pending: Joe |
+| Highlighted fence | Pass, after [F1](#failures) fix | Pass, after [F1](#failures) fix (same renderer; re-verified in browser) | Pending: Joe | Pending: Joe |
 | Workspace image renders | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
-| File path styled, press does nothing | Pass, with [F1](#failures) font note | Pass, with [F1](#failures) font note | Pending: Joe | Pending: Joe |
+| File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (same renderer; re-verified in browser) | Pending: Joe | Pending: Joe |
 | Selection copy yields TeX | Pass ([6](#selection-copy)) | Pass ([6](#selection-copy)) | n/a | n/a |
 
-Any failed cell blocks cutover. F1 is the only failure.
+Any failed cell blocks cutover. F1 was the only failure and is fixed.
 
 ### Failures
 
-**F1: highlighted fence and inline code are proportional text on web and Electron.** In the plugin row
-the fence's outer element computes `font-family: monospace`, but every token `<span>` inside it
-computes `system-ui`. Inline code (`src/index.ts`) also computes `system-ui`. In the host's own row for
-a fence in a message without math (`no-math.txt`) the token spans compute
-`SFMono-Regular, Menlo, Monaco, ...`. Screenshots show the plugin fence in the body sans font:
+**F1 (fixed): highlighted fence and inline code were proportional text on web and Electron.** In the
+plugin row the fence's outer element computed `font-family: monospace`, but every token `<span>`
+inside it computed `system-ui`, and so did inline code (`src/index.ts`). React Native Web nested
+`Text` spans do not inherit `fontFamily` from the outer `Text`. The host's own fence
+(`no-math.txt`) computes `SFMono-Regular, Menlo, Monaco, ...` on its token spans. Before the fix:
 [basics-web.png](validation/basics-web.png), [basics-electron.png](validation/basics-electron.png),
-against the host fence in [no-math-web.png](validation/no-math-web.png). Colors, backgrounds, and
-the file-path accent are correct. No code was changed in this task. Whether native renders the same
-is one of the rows in Joe's device pass.
+against the host fence in [no-math-web.png](validation/no-math-web.png).
 
-Computed styles read from the page (Browser and Electron identical):
+Fix: `MONO_FONT_FAMILY` in `client/highlight.tsx` (the host's `DEFAULT_MONO_FONT_STACK`) is set on
+the fence and code-block text, the plain-text fallback, every line and token `Text`, and inline
+code. `FilePathText` (the `[the notes](file)` link) stays in the body font like the host's link.
+After the fix, Browser, computed style of the `basics` reply (`const`, `number`, `sqrt` token
+spans and the `src/index.ts` inline code) is `SFMono-Regular, Menlo, Monaco, Consolas, "Liberation
+Mono", "Courier New", monospace` for every element:
+[basics-web-mono.png](validation/basics-web-mono.png). Electron runs the same renderer and was not
+re-run.
 
-| Element | Plugin row | Host row |
+| Element | Before | After |
 | --- | --- | --- |
 | Fence outer element font | `monospace` | `SFMono-Regular, Menlo, Monaco, ...` |
 | Fence token span font | `system-ui` | `SFMono-Regular, Menlo, Monaco, ...` |
-| Inline code font | `system-ui` | n/a (host inline code is monospace in the screenshot) |
+| Inline code font | `system-ui` | `SFMono-Regular, Menlo, Monaco, ...` |
 
 ### Basics message
 
@@ -61,7 +66,7 @@ reply is one plugin row (`q5m-math/<message id>/0`). Measured in the DOM on both
 | --- | --- |
 | Valid formulas | 6 `<img>`, all decoded; `alt` is the TeX source |
 | Invalid formula (4) | `$\frac{p}$` stays as source text, no error card, rest of message intact |
-| Highlighted fence | 4 distinct token colors (`rgb(207, 34, 46)`, `rgb(130, 80, 223)`, `rgb(5, 80, 174)`, `rgb(36, 41, 47)`) on `rgb(250, 250, 250)`; fonts per F1 |
+| Highlighted fence | 4 distinct token colors (`rgb(207, 34, 46)`, `rgb(130, 80, 223)`, `rgb(5, 80, 174)`, `rgb(36, 41, 47)`) on `rgb(250, 250, 250)`; mono font per F1 fix |
 | Workspace image (4) | `chart.png` natural 200x150 renders 200x150; `big.png` natural 1800x1750 scales to the row (760x739 on web, 760x739 on Electron) |
 | File path styled | `src/index.ts` and the link text both use the theme accent `rgb(32, 116, 74)`; inline code has the muted background |
 | File path press does nothing | Click on `src/index.ts` and on the link text: URL, open pages, tab count, and chat DOM size unchanged; no dialog, popup, or toast |
@@ -196,8 +201,8 @@ Check on each phone, one row per matrix row:
    the message renders.
 5. 50 formulas: use `m0-agents6` (open and scroll) and `m0-agents5` (send "Repeat your previous reply
    exactly." and type in the composer while it streams). Visible lag blocks rollout.
-6. Highlighted fence: colors are present, and look at the font. On web and Electron the fence is not
-   monospace (F1). Record whether native is monospace.
+6. Highlighted fence: colors are present and the fence and inline code are monospace (F1 was fixed on
+   web and Electron). Record whether native is monospace.
 7. Image: `chart` renders about 200x150 (not stretched to the full width); `big chart` fits the width.
 8. File path: `src/index.ts` and "the notes" use the accent color. Tap both: nothing happens.
 9. Selection copy: n/a on phones.

@@ -32,7 +32,7 @@ import { Formula } from "./formula.js";
 import { useSelectionCopy } from "./selection-copy.js";
 import { blockDataSet, formulaDataSet } from "./source-map.js";
 import { MathErrorBoundary } from "./error-boundary.js";
-import { HighlightedCode } from "./highlight.js";
+import { HighlightedCode, MONO_FONT_FAMILY } from "./highlight.js";
 import { classifyHref, FilePathText, isInlineCodePath } from "./links.js";
 
 const markdown = new MarkdownIt({
@@ -265,6 +265,7 @@ const MemoizedMathMessage = memo(
             style={[
               inherited,
               ruleStyles.code_inline,
+              { fontFamily: MONO_FONT_FAMILY },
               isInlineCodePath(node.content) && { color: colors.accent },
             ]}
           >
