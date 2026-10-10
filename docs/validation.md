@@ -19,16 +19,16 @@ no-math, list-copy) and `v9s` (streaming), both git repos under `/tmp` with `cha
 
 | Check | Browser | Electron | iOS | Android |
 | --- | --- | --- | --- | --- |
-| Streamed math message reveals at host pace | Pass ([1](#streaming-pace)) | Pass ([1](#streaming-pace)) | Pending: Joe | Pending: Joe |
-| Message without math matches host | Pass ([2](#message-without-math)) | Pass ([2](#message-without-math)) | Pending: Joe | Pending: Joe |
-| Theme switch updates formulas and highlight colors | Pass ([3](#theme-switch)) | Pass ([3](#theme-switch)) | Pending: Joe | Pending: Joe |
-| Invalid formula falls back to source | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
-| 50-formula message responsiveness | Pass ([5](#50-formula-message)) | Pass ([5](#50-formula-message)) | Pending: Joe | Pending: Joe |
-| Highlighted fence | Pass, after [F1](#failures) fix | Pass, after [F1](#failures) fix (re-measured on Electron) | Pending: Joe | Pending: Joe |
-| Workspace image renders | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pending: Joe | Pending: Joe |
-| File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (re-measured on Electron) | Pending: Joe | Pending: Joe |
+| Streamed math message reveals at host pace | Pass ([1](#streaming-pace)) | Pass ([1](#streaming-pace)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| Message without math matches host | Pass ([2](#message-without-math)) | Pass ([2](#message-without-math)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| Theme switch updates formulas and highlight colors | Pass ([3](#theme-switch)) | Pass ([3](#theme-switch)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| Invalid formula falls back to source | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| 50-formula message responsiveness | Pass ([5](#50-formula-message)) | Pass ([5](#50-formula-message)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| Highlighted fence | Pass, after [F1](#failures) fix | Pass, after [F1](#failures) fix (re-measured on Electron) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| Workspace image renders | Pass ([4](#basics-message)) | Pass ([4](#basics-message)) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
+| File path styled, press does nothing | Pass, mono font after [F1](#failures) fix | Pass, mono font after [F1](#failures) fix (re-measured on Electron) | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
 | Selection copy yields TeX | Pass ([6](#selection-copy)) | Pass ([6](#selection-copy)) | n/a | n/a |
-| Phone load: plugin load after reconnect or app start, first highlighted fence render (client bundle grew) | Pending: Joe | Pending: Joe | Pending: Joe | Pending: Joe |
+| Phone load: plugin load after reconnect or app start, first highlighted fence render (client bundle grew) | Pending: Joe | Pending: Joe | Pass (Joe, 2026-10-10) | Pass (Joe, 2026-10-10) |
 
 Any failed cell blocks cutover. F1 was the only failure and is fixed.
 
@@ -184,7 +184,7 @@ Screenshots: [paragraph, web](validation/copy-web-paragraph.png), [formula list,
 
 ### Joe's device pass
 
-iOS and Android are pending. Use a phone app on Paseo 0.11.x. Connect it to the dev daemon with the
+iOS and Android passed on 2026-10-10 (see Device results below). To repeat, use a phone app on Paseo 0.11.x. Connect it to the dev daemon with the
 pairing steps in [Connect a phone to the dev daemon](#connect-a-phone-to-the-dev-daemon) below (use
 `env -u PASEO_HOME` and `--home`, or you pair the production daemon on 6767).
 
@@ -230,7 +230,7 @@ Record the result per row (rows 1-10) under "Device results" here.
 
 #### Device results
 
-Pending.
+2026-10-10, Joe: iOS and Android pass rows 1–10.
 
 ---
 
@@ -462,7 +462,7 @@ Record the results here under "Device results".
 
 #### Device results
 
-This section covers milestone 0 only. The phone cells of the final matrix at the top of this
-document are still pending.
+This section covers milestone 0 only. The final matrix's phone results are under "Device results" in
+"Joe's device pass" above.
 
 2026-10-10, Joe: iOS and Android pass — formulas render and stream; no visible input or scroll lag.

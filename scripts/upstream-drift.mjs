@@ -65,7 +65,9 @@ try {
   if (args.includes("--check-vendor")) process.exitCode = vendorDrift.length ? 1 : 0;
   else if (args.includes("--json")) console.log(JSON.stringify(report));
   else {
-    const empty = !report.upstream.commits.length && !report.base.commits.length && !vendorDrift.length;
+    // Base (q5m-ai) commits are reported but never count as drift: the sync does not merge them, so
+    // base.commit does not advance and they would reopen a PR every week.
+    const empty = !report.upstream.commits.length && !vendorDrift.length;
     console.log(empty ? "No drift." : JSON.stringify(report, null, 2));
     if (report.addMarkdownExtension) console.log("Upstream now has addMarkdownExtension: switch back to the extension-based plugin.");
   }
