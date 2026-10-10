@@ -1,0 +1,20 @@
+Reply with exactly the markdown between the BEGIN and END marker lines below, verbatim, and nothing else. Do not use any tools. Do not wrap the reply in a code fence. Do not include the marker lines.
+BEGIN
+## Validation basics
+
+A right triangle satisfies $a^2+b^2=c^2$ for legs $a$, $b$ and hypotenuse $c$.
+
+$$\int_0^1 x\,dx = \frac{1}{2}$$
+
+A broken formula $\frac{p}$ stays as source, while $e^{i\pi}+1=0$ renders.
+
+```ts
+const hyp = (a: number, b: number): number => Math.sqrt(a * a + b * b);
+```
+
+Open `src/index.ts` or read [the notes](docs/notes.md) for context.
+
+![chart](chart.png)
+
+![big chart](big.png)
+END

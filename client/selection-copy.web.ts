@@ -89,7 +89,7 @@ export function useSelectionCopy(rowRef: RefObject<unknown>, source: string): vo
   useEffect(() => {
     const row = rowRef.current as DomElement | null;
     if (!row || typeof row.addEventListener !== "function") return;
-    // Milestone 0 (docs/milestone-0.md, Step 4): the host's copy handler runs after
+    // Milestone 0 (docs/validation.md, Step 4): the host's copy handler runs after
     // this bubbling listener and does not preventDefault for plugin rows.
     const onCopy = (event: CopyEvent) => {
       const selection = (

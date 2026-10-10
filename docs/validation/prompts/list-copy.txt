@@ -1,0 +1,14 @@
+Reply with exactly the markdown between the BEGIN and END marker lines below, verbatim, and nothing else. Do not use any tools. Do not wrap the reply in a code fence. Do not include the marker lines.
+BEGIN
+Intro line with $E=mc^2$ inside a paragraph.
+
+Plain list:
+
+- alpha item
+- beta item
+
+Formula list:
+
+- gamma item
+- delta has $x^2$ inside
+END

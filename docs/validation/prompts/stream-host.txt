@@ -1,0 +1,50 @@
+Reply with exactly the markdown between the BEGIN and END marker lines below, verbatim, and nothing else. Do not use any tools. Do not wrap the reply in a code fence. Do not include the marker lines.
+BEGIN
+## Streaming pace (host), part 1
+
+The kinetic energy of a body is T=\tfrac12 mv^2, and the work done by a constant force along a displacement is W=\vec F\cdot\vec d. Together they give the work-energy theorem, which says that the net work equals the change in kinetic energy.
+
+W_{net} = \Delta T = \tfrac12 m v_f^2 - \tfrac12 m v_i^2
+
+For a spring with constant k the restoring force is F=-kx and the stored energy is U=\tfrac12 k x^2. The angular frequency of the resulting oscillation is \omega=\sqrt{k/m}, so the period is T=2\pi\sqrt{m/k}.
+
+x(t) = A\cos(\omega t + \phi)
+
+In a gravitational field the potential energy near the surface is U=mgh, and conservation of mechanical energy lets us write the speed at the bottom of a drop of height h as v=\sqrt{2gh}. The same reasoning applied to a pendulum gives T\approx 2\pi\sqrt{L/g} for small angles.
+
+\oint \vec E\cdot d\vec A = \frac{Q_{enc}}{\varepsilon_0}
+
+These relations are enough to solve most introductory mechanics problems, and the formulas above should reveal at the same pace as the surrounding words.
+
+## Streaming pace (host), part 2
+
+The kinetic energy of a body is T=\tfrac12 mv^2, and the work done by a constant force along a displacement is W=\vec F\cdot\vec d. Together they give the work-energy theorem, which says that the net work equals the change in kinetic energy.
+
+W_{net} = \Delta T = \tfrac12 m v_f^2 - \tfrac12 m v_i^2
+
+For a spring with constant k the restoring force is F=-kx and the stored energy is U=\tfrac12 k x^2. The angular frequency of the resulting oscillation is \omega=\sqrt{k/m}, so the period is T=2\pi\sqrt{m/k}.
+
+x(t) = A\cos(\omega t + \phi)
+
+In a gravitational field the potential energy near the surface is U=mgh, and conservation of mechanical energy lets us write the speed at the bottom of a drop of height h as v=\sqrt{2gh}. The same reasoning applied to a pendulum gives T\approx 2\pi\sqrt{L/g} for small angles.
+
+\oint \vec E\cdot d\vec A = \frac{Q_{enc}}{\varepsilon_0}
+
+These relations are enough to solve most introductory mechanics problems, and the formulas above should reveal at the same pace as the surrounding words.
+
+## Streaming pace (host), part 3
+
+The kinetic energy of a body is T=\tfrac12 mv^2, and the work done by a constant force along a displacement is W=\vec F\cdot\vec d. Together they give the work-energy theorem, which says that the net work equals the change in kinetic energy.
+
+W_{net} = \Delta T = \tfrac12 m v_f^2 - \tfrac12 m v_i^2
+
+For a spring with constant k the restoring force is F=-kx and the stored energy is U=\tfrac12 k x^2. The angular frequency of the resulting oscillation is \omega=\sqrt{k/m}, so the period is T=2\pi\sqrt{m/k}.
+
+x(t) = A\cos(\omega t + \phi)
+
+In a gravitational field the potential energy near the surface is U=mgh, and conservation of mechanical energy lets us write the speed at the bottom of a drop of height h as v=\sqrt{2gh}. The same reasoning applied to a pendulum gives T\approx 2\pi\sqrt{L/g} for small angles.
+
+\oint \vec E\cdot d\vec A = \frac{Q_{enc}}{\varepsilon_0}
+
+These relations are enough to solve most introductory mechanics problems, and the formulas above should reveal at the same pace as the surrounding words.
+END
