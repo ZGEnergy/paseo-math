@@ -1,5 +1,10 @@
 import type { PluginTimelineItemProps } from "@getpaseo/plugin/client";
-import { copyText, Icon, useToast } from "@getpaseo/plugin/client/react-native";
+import {
+  copyText,
+  Icon,
+  useRevealedText,
+  useToast,
+} from "@getpaseo/plugin/client/react-native";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
   Linking,
@@ -46,6 +51,27 @@ export function MathMessageView(props: PluginTimelineItemProps<MathMessage>) {
   return <MemoizedMathMessage {...props} />;
 }
 
+// Re-render only for the fields the view reads, including the streaming phase.
+export function isSameMathMessage(
+  previous: PluginTimelineItemProps<MathMessage>,
+  next: PluginTimelineItemProps<MathMessage>,
+) {
+  const a = previous.theme.colors;
+  const b = next.theme.colors;
+  return (
+    previous.item.data.text === next.item.data.text &&
+    previous.item.data.phase === next.item.data.phase &&
+    previous.host.id === next.host.id &&
+    previous.layout.compact === next.layout.compact &&
+    a.foreground === b.foreground &&
+    a.foregroundMuted === b.foregroundMuted &&
+    a.surface1 === b.surface1 &&
+    a.surface2 === b.surface2 &&
+    a.border === b.border &&
+    a.accent === b.accent
+  );
+}
+
 const MemoizedMathMessage = memo(
   function MathMessageView({
     item,
@@ -53,7 +79,8 @@ const MemoizedMathMessage = memo(
     theme,
     layout,
   }: PluginTimelineItemProps<MathMessage>) {
-    const { text } = item.data;
+    const { text: sourceText, phase } = item.data;
+    const text = useRevealedText(sourceText, phase);
     const colors = theme.colors;
     const toast = useToast();
     const [width, setWidth] = useState(0);
@@ -228,12 +255,12 @@ const MemoizedMathMessage = memo(
 
     const copySource = useCallback(async () => {
       try {
-        await copyText(text);
+        await copyText(sourceText);
         toast.show("Source copied", { variant: "success" });
       } catch {
         toast.error("Unable to copy the source.");
       }
-    }, [text, toast]);
+    }, [sourceText, toast]);
 
     return (
       <View
@@ -268,19 +295,5 @@ const MemoizedMathMessage = memo(
       </View>
     );
   },
-  (previous, next) => {
-    const a = previous.theme.colors;
-    const b = next.theme.colors;
-    return (
-      previous.item.data.text === next.item.data.text &&
-      previous.host.id === next.host.id &&
-      previous.layout.compact === next.layout.compact &&
-      a.foreground === b.foreground &&
-      a.foregroundMuted === b.foregroundMuted &&
-      a.surface1 === b.surface1 &&
-      a.surface2 === b.surface2 &&
-      a.border === b.border &&
-      a.accent === b.accent
-    );
-  },
+  isSameMathMessage,
 );
