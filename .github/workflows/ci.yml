@@ -1,7 +1,9 @@
 name: Validate plugin
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -19,4 +21,5 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run smoke
+      # smoke:hermes needs a local Hermes build (docs/hermes-testing.md); the weekly sync runs it locally.
       - run: npm audit --omit=dev --audit-level=moderate

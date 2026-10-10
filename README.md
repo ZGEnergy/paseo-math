@@ -18,7 +18,7 @@ A message is rendered by this plugin only when it contains math; every other mes
 
 ## Compatibility
 
-**Requires Paseo 0.11+ on both the host daemon and the client app.** Build, typecheck, and compiler smoke validation use the 0.11.2 SDK at `getpaseo/paseo@7868f5caf6`.
+**Requires Paseo 0.11+ on both the host daemon and the client app.** Build, typecheck, and compiler smoke validation use the SDK from the Paseo `v0.11.2` release (`getpaseo/paseo@7595325095`).
 
 Validated on Paseo 0.11.2 in a browser and in the Electron dev app on Linux. iOS and Android passes are tracked in [docs/validation.md](docs/validation.md), along with the failures found so far. Automated tests are not a substitute for testing those clients.
 
@@ -29,6 +29,15 @@ Module "@getpaseo/plugin/client/react-native" is not available in plugin client 
 ```
 
 Update the client to the matching 0.11 release rather than installing the plugin again. Official clients are available from the [Paseo releases page](https://github.com/getpaseo/paseo/releases).
+
+## Staying current
+
+A weekly sync checks [getpaseo/paseo releases](https://github.com/getpaseo/paseo/releases) and opens a pull request here when something changed. The prompt it runs is [docs/sync-schedule.md](docs/sync-schedule.md).
+
+- It tracks stable release tags, not `main`. `npm run drift` reports new releases, host rendering changes, plugin SDK changes, relevant release notes, and unreleased changes on `main` as an early warning.
+- Every new release is re-pinned and run through the full build, test, and smoke gate, even when nothing math-related changed. A break opens a draft pull request.
+- When Paseo adds host APIs that improve math rendering, the sync adopts them. It raises the plugin's minimum Paseo version only up to the version the maintainer's production daemon runs, never beyond. Changes that need a newer Paseo are listed in the pull request as waiting.
+- The sync merges its own pull request only when it is not a draft, every local gate passed, CI is green, and GitHub reports it mergeable. Anything else stays open as a draft with the reason in a comment.
 
 ## Install
 
