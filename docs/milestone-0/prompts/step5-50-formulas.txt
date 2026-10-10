@@ -1,0 +1,302 @@
+Reply with exactly the markdown between the BEGIN and END marker lines below, verbatim, and nothing else. Do not use any tools. Do not wrap the reply in a code fence. Do not include the marker lines.
+BEGIN
+**1. Newton's second law**
+
+$$\vec F = m\vec a$$
+
+The net force on a body equals its mass times its acceleration.
+
+**2. Kinematics, constant acceleration**
+
+$$x = x_0 + v_0 t + \tfrac{1}{2} a t^2$$
+
+Position grows quadratically in time under constant acceleration.
+
+**3. Velocity squared relation**
+
+$$v^2 = v_0^2 + 2a(x - x_0)$$
+
+This relation eliminates time from constant-acceleration motion.
+
+**4. Universal gravitation**
+
+$$F = G\frac{m_1 m_2}{r^2}$$
+
+Gravity between two point masses falls off with the square of their separation.
+
+**5. Work-energy theorem**
+
+$$W = \int_{\vec r_1}^{\vec r_2} \vec F\cdot d\vec r = \Delta K$$
+
+The work done by the net force equals the change in kinetic energy.
+
+**6. Kinetic energy**
+
+$$K = \tfrac{1}{2} m v^2$$
+
+Kinetic energy is quadratic in speed.
+
+**7. Gravitational potential energy**
+
+$$U(r) = -\frac{G M m}{r}$$
+
+The potential energy is zero at infinite separation.
+
+**8. Momentum conservation**
+
+$$\sum_i m_i \vec v_i = \text{const}$$
+
+Total momentum is conserved when no external force acts.
+
+**9. Angular momentum**
+
+$$\vec L = \vec r \times \vec p$$
+
+Angular momentum is the moment of linear momentum.
+
+**10. Torque**
+
+$$\vec\tau = \frac{d\vec L}{dt}$$
+
+Torque is the rate of change of angular momentum.
+
+**11. Moment of inertia**
+
+$$I = \int r^2\, dm$$
+
+Moment of inertia measures resistance to angular acceleration.
+
+**12. Simple harmonic oscillator**
+
+$$\ddot x + \omega_0^2 x = 0$$
+
+This equation describes small oscillations about a stable equilibrium.
+
+**13. Damped oscillator**
+
+$$m\ddot x + b\dot x + kx = 0$$
+
+The damping term removes energy from the oscillator.
+
+**14. Pendulum period**
+
+$$T = 2\pi\sqrt{\frac{L}{g}}$$
+
+The small-angle period does not depend on amplitude.
+
+**15. Kepler's third law**
+
+$$T^2 = \frac{4\pi^2}{G M} a^3$$
+
+The square of the orbital period scales with the cube of the semi-major axis.
+
+**16. Euler-Lagrange equation**
+
+$$\frac{d}{dt}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = 0$$
+
+Stationary action yields the equations of motion.
+
+**17. Hamilton's equations**
+
+$$\dot q = \frac{\partial H}{\partial p},\quad \dot p = -\frac{\partial H}{\partial q}$$
+
+Hamiltonian mechanics uses first-order equations in phase space.
+
+**18. Wave equation**
+
+$$\frac{\partial^2 u}{\partial t^2} = c^2 \nabla^2 u$$
+
+Disturbances propagate at speed c.
+
+**19. Bernoulli's equation**
+
+$$p + \tfrac{1}{2}\rho v^2 + \rho g h = \text{const}$$
+
+Energy per unit volume is conserved along a streamline.
+
+**20. Continuity equation**
+
+$$\frac{\partial \rho}{\partial t} + \nabla\cdot(\rho\vec v) = 0$$
+
+Mass is neither created nor destroyed in the flow.
+
+**21. Ideal gas law**
+
+$$pV = nRT$$
+
+Pressure, volume and temperature of a dilute gas are linked by this law.
+
+**22. First law of thermodynamics**
+
+$$dU = \delta Q - \delta W$$
+
+Internal energy changes by heat added minus work done.
+
+**23. Entropy**
+
+$$dS = \frac{\delta Q_{\text{rev}}}{T}$$
+
+Entropy change is reversible heat divided by temperature.
+
+**24. Boltzmann entropy**
+
+$$S = k_B \ln \Omega$$
+
+Entropy counts the microstates compatible with a macrostate.
+
+**25. Carnot efficiency**
+
+$$\eta = 1 - \frac{T_C}{T_H}$$
+
+No heat engine between two reservoirs can beat this efficiency.
+
+**26. Boltzmann distribution**
+
+$$P_i = \frac{e^{-E_i/k_B T}}{Z}$$
+
+States are populated in proportion to their Boltzmann factor.
+
+**27. Partition function**
+
+$$Z = \sum_i e^{-\beta E_i}$$
+
+The partition function generates all equilibrium thermodynamics.
+
+**28. Stefan-Boltzmann law**
+
+$$j = \sigma T^4$$
+
+Radiated power per area grows with the fourth power of temperature.
+
+**29. Coulomb's law**
+
+$$\vec F = \frac{1}{4\pi\varepsilon_0}\frac{q_1 q_2}{r^2}\hat r$$
+
+Like charges repel and unlike charges attract.
+
+**30. Gauss's law**
+
+$$\nabla\cdot\vec E = \frac{\rho}{\varepsilon_0}$$
+
+Electric flux out of a region measures the enclosed charge.
+
+**31. No magnetic monopoles**
+
+$$\nabla\cdot\vec B = 0$$
+
+Magnetic field lines have no beginning or end.
+
+**32. Faraday's law**
+
+$$\nabla\times\vec E = -\frac{\partial \vec B}{\partial t}$$
+
+A changing magnetic field induces a circulating electric field.
+
+**33. Ampere-Maxwell law**
+
+$$\nabla\times\vec B = \mu_0\vec J + \mu_0\varepsilon_0\frac{\partial \vec E}{\partial t}$$
+
+Currents and changing electric fields produce magnetic fields.
+
+**34. Lorentz force**
+
+$$\vec F = q(\vec E + \vec v\times\vec B)$$
+
+A charge feels electric and magnetic forces.
+
+**35. Ohm's law**
+
+$$V = IR$$
+
+Current through a resistor is proportional to the applied voltage.
+
+**36. Capacitor energy**
+
+$$U = \tfrac{1}{2} C V^2$$
+
+A charged capacitor stores energy in its electric field.
+
+**37. RC circuit**
+
+$$q(t) = q_0 e^{-t/RC}$$
+
+A discharging capacitor decays exponentially with time constant RC.
+
+**38. Biot-Savart law**
+
+$$d\vec B = \frac{\mu_0}{4\pi}\frac{I\, d\vec\ell\times\hat r}{r^2}$$
+
+Each current element contributes to the magnetic field.
+
+**39. Poynting vector**
+
+$$\vec S = \frac{1}{\mu_0}\vec E\times\vec B$$
+
+The Poynting vector gives the electromagnetic energy flux.
+
+**40. Speed of light**
+
+$$c = \frac{1}{\sqrt{\mu_0\varepsilon_0}}$$
+
+Maxwell's equations predict waves travelling at this speed.
+
+**41. Snell's law**
+
+$$n_1\sin\theta_1 = n_2\sin\theta_2$$
+
+Light bends when it crosses between media.
+
+**42. Lorentz factor**
+
+$$\gamma = \frac{1}{\sqrt{1 - v^2/c^2}}$$
+
+The Lorentz factor sets time dilation and length contraction.
+
+**43. Mass-energy relation**
+
+$$E^2 = (pc)^2 + (mc^2)^2$$
+
+Energy, momentum and rest mass are linked relativistically.
+
+**44. Planck relation**
+
+$$E = h\nu$$
+
+A photon's energy is proportional to its frequency.
+
+**45. de Broglie wavelength**
+
+$$\lambda = \frac{h}{p}$$
+
+Matter has a wavelength inversely proportional to momentum.
+
+**46. Uncertainty principle**
+
+$$\Delta x\,\Delta p \ge \frac{\hbar}{2}$$
+
+Position and momentum cannot both be sharply defined.
+
+**47. Schrodinger equation**
+
+$$i\hbar\frac{\partial \psi}{\partial t} = -\frac{\hbar^2}{2m}\nabla^2\psi + V\psi$$
+
+The wavefunction evolves under the Hamiltonian.
+
+**48. Particle in a box**
+
+$$E_n = \frac{n^2\pi^2\hbar^2}{2mL^2}$$
+
+Confinement quantizes the allowed energies.
+
+**49. Hydrogen energy levels**
+
+$$E_n = -\frac{13.6\ \text{eV}}{n^2}$$
+
+Bound hydrogen energies scale as the inverse square of n.
+
+**50. Radioactive decay**
+
+$$N(t) = N_0 e^{-\lambda t}$$
+
+The number of undecayed nuclei falls exponentially.
+END
