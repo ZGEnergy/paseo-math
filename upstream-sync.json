@@ -1,0 +1,37 @@
+{
+  "upstream": { "repo": "https://github.com/getpaseo/paseo.git", "commit": "7868f5caf6515543a81ffc58fe941e15e917dcf9" },
+  "base": { "repo": "https://github.com/q5m-ai/paseo-math.git", "commit": "ccfcd9a" },
+  "vendor": [
+    { "local": "client/vendor/path.ts", "upstream": "packages/app/src/utils/path.ts", "headerLines": 1 },
+    { "local": "client/vendor/assistant-file-links-parse.ts", "upstream": "packages/app/src/assistant-file-links/parse.ts" },
+    { "local": "client/vendor/preview-target.ts", "upstream": "packages/app/src/file-explorer/preview-target.ts" },
+    { "local": "client/vendor/local-file-source.ts", "upstream": "packages/app/src/attachments/utils.ts", "headerLines": 3, "lines": [145, 184] }
+  ],
+  "watch": [
+    "packages/app/src/components/markdown/",
+    "packages/app/src/components/message.tsx",
+    "packages/app/src/components/markdown-text.android.tsx",
+    "packages/app/src/components/markdown-text.ios.tsx",
+    "packages/app/src/components/markdown-text.web.tsx",
+    "packages/app/src/components/markdown-text-selection.tsx",
+    "packages/app/src/components/markdown-text-style.ts",
+    "packages/app/src/components/highlighted-code-block.tsx",
+    "packages/app/src/utils/highlight-cache.ts",
+    "packages/app/src/styles/markdown-styles.ts",
+    "packages/app/src/styles/theme.ts",
+    "packages/app/src/utils/markdown-parser.ts",
+    "packages/app/src/utils/assistant-markdown-parser.ts",
+    "packages/app/src/utils/assistant-image-source.ts",
+    "packages/app/src/assistant-selection-copy/",
+    "packages/app/src/assistant-file-links/",
+    "packages/app/src/assistant-image/",
+    "packages/app/src/file-explorer/preview-target.ts",
+    "packages/app/src/utils/path.ts",
+    "packages/app/src/attachments/utils.ts",
+    "packages/app/src/plugins/evaluate.ts",
+    "packages/app/src/plugins/timeline/",
+    "packages/plugin/src/client/",
+    "packages/server/src/server/plugins/compiler.ts",
+    "packages/highlight/"
+  ]
+}

@@ -16,8 +16,14 @@ HERMES_BIN=/absolute/path/to/hermes npm run smoke:hermes
 Use the runtime executable, not React Native's compiler-only `hermesc` binary.
 The matching Hermes source revision is recorded in
 `node_modules/react-native/sdks/.hermesversion` (currently
-`e0fc67142ec0763c6b6153ca2bf96df815539782`). Build that revision with CMake/Ninja,
-a C++ toolchain, Python, and ICU development libraries, targeting `hermes`.
+`e0fc67142ec0763c6b6153ca2bf96df815539782`, facebook/hermes). Build that revision with
+CMake/Ninja, a C++ toolchain, Python, and ICU development libraries, targeting `hermes`.
+
+On Linux there is no prebuilt runtime: React Native ships only `hermesc` for Linux
+(its `hermes` binary is macOS-only), and the npm `hermes-engine-cli` package is too old
+(it rejects `-Xes6-class`). Build from source. If ICU headers are not installed
+system-wide, extract `libicu-dev` into a prefix, symlink `libicu{uc,i18n,data}.so`
+to the system `.so.NN` files in its `lib/`, and pass `-DICU_ROOT=<prefix>` to CMake.
 
 The test compiles the plugin with the released Paseo compiler, evaluates its
 client bundle in Hermes, and checks registration, incremental math projection,
@@ -28,3 +34,8 @@ clipboard behavior, or formula image layout. Those still require device testing.
 
 Ordinary `npm run smoke` also rejects any remaining class syntax in the final
 client bundle, even when Hermes is unavailable in CI.
+
+The `@getpaseo/highlight` pre-bundle in `scripts/build.mjs` sets `minifyIdentifiers: true`
+because Paseo's compiler rewrites esbuild's `get: () => from[key]` interop helper by exact
+string match, and a top-level `from` in a dependency makes esbuild rename that parameter and
+defeat the rewrite. `smoke:hermes` guards this.

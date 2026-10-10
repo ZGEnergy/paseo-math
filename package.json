@@ -9,12 +9,14 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "sdk": "node scripts/sdk.mjs",
+    "drift": "node scripts/upstream-drift.mjs",
     "smoke": "node --import tsx scripts/smoke.mjs",
     "smoke:hermes": "node --import tsx scripts/hermes-smoke.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@getpaseo/highlight": "0.11.2",
     "@resvg/resvg-wasm": "2.6.2",
     "markdown-it": "15.0.1",
     "mathjax-full": "3.2.2",
@@ -29,10 +31,12 @@
   "devDependencies": {
     "@babel/core": "7.29.0",
     "@babel/plugin-transform-classes": "7.28.6",
-    "@getpaseo/plugin": "0.8.0",
+    "@getpaseo/plugin": "0.11.2",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^22.0.0",
     "@types/react": "~19.2.0",
     "esbuild": "^0.25.0",
+    "jsdom": "^26.1.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
