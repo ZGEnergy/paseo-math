@@ -1,4 +1,8 @@
-import type { PluginTimelineItemProps } from "@getpaseo/plugin/client";
+import {
+  openExternalUrl,
+  useAgent,
+  type PluginTimelineItemProps,
+} from "@getpaseo/plugin/client";
 import {
   copyText,
   Icon,
@@ -25,6 +29,7 @@ import Markdown, {
 import { Formula } from "./formula.js";
 import { MathErrorBoundary } from "./error-boundary.js";
 import { HighlightedCode } from "./highlight.js";
+import { classifyHref, FilePathText, isInlineCodePath } from "./links.js";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -54,6 +59,7 @@ export function MathMessageView(props: PluginTimelineItemProps<MathMessage>) {
 
 const MemoizedMathMessage = memo(
   function MathMessageView({
+    agentId,
     item,
     host,
     theme,
@@ -63,6 +69,7 @@ const MemoizedMathMessage = memo(
     const text = useRevealedText(sourceText, phase);
     const colors = theme.colors;
     const toast = useToast();
+    const workspaceRoot = useAgent(agentId, (agent) => agent.cwd) ?? undefined;
     const [width, setWidth] = useState(0);
     const fontSize = layout.compact ? 14 : 16;
     const styles = useMemo(
@@ -128,6 +135,27 @@ const MemoizedMathMessage = memo(
       ],
     );
 
+    const onLinkPress = useCallback(
+      (url: string) => {
+        // Opening happens only after a user's press, never while parsing/rendering.
+        // Anything other than web, mailto, and workspace-file links is refused.
+        const kind = classifyHref(url, workspaceRoot);
+        if (kind === "external") {
+          void openExternalUrl(url).catch(() =>
+            toast.error("Unable to open this link."),
+          );
+        } else if (kind === "mailto") {
+          void Linking.openURL(url).catch(() =>
+            toast.error("Unable to open this link."),
+          );
+        } else if (kind === "unsupported") {
+          toast.error("This link type is not supported.");
+        }
+        return false;
+      },
+      [toast, workspaceRoot],
+    );
+
     const rules = useMemo<RenderRules>(() => {
       const mathRule: RenderFunction = (
         node: MathNode,
@@ -183,11 +211,33 @@ const MemoizedMathMessage = memo(
           <Text
             key={node.key}
             selectable
-            style={[inherited, ruleStyles.code_inline]}
+            style={[
+              inherited,
+              ruleStyles.code_inline,
+              isInlineCodePath(node.content) && { color: colors.accent },
+            ]}
           >
             {node.content}
           </Text>
         ),
+        // The library passes onLinkPress (not inherited styles) as the 5th link
+        // argument; use the closure below so the press path stays in one place.
+        link: (node, children, _parents, ruleStyles) => {
+          const href = String(node.attributes.href ?? "");
+          return classifyHref(href, workspaceRoot) === "file" ? (
+            <FilePathText key={node.key} color={colors.accent}>
+              {children}
+            </FilePathText>
+          ) : (
+            <Text
+              key={node.key}
+              style={ruleStyles.link}
+              onPress={() => onLinkPress(href)}
+            >
+              {children}
+            </Text>
+          );
+        },
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
           <HighlightedCode
             key={node.key}
@@ -207,23 +257,15 @@ const MemoizedMathMessage = memo(
           />
         ),
       };
-    }, [colors.foreground, colors.surface0, host.id, width]);
-
-    const onLinkPress = useCallback(
-      (url: string) => {
-        // Opening happens only after a user's press, never while parsing/rendering.
-        // Refuse custom app/file/script schemes even if a future parser allows them.
-        if (!/^(?:https?:\/\/|mailto:)/i.test(url)) {
-          toast.error("This link type is not supported.");
-          return false;
-        }
-        void Linking.openURL(url).catch(() =>
-          toast.error("Unable to open this link."),
-        );
-        return false;
-      },
-      [toast],
-    );
+    }, [
+      colors.accent,
+      colors.foreground,
+      colors.surface0,
+      host.id,
+      onLinkPress,
+      width,
+      workspaceRoot,
+    ]);
 
     const copySource = useCallback(async () => {
       try {
