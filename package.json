@@ -19,8 +19,7 @@
     "@getpaseo/highlight": "0.11.2",
     "@resvg/resvg-wasm": "2.6.2",
     "markdown-it": "15.0.1",
-    "mathjax-full": "3.2.2",
-    "react-native-markdown-display": "7.0.2"
+    "mathjax-full": "3.2.2"
   },
   "overrides": {
     "react-native-markdown-display": {
@@ -40,6 +39,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-markdown-display": "7.0.2",
     "react-native-web": "0.21.2",
     "tsx": "^4.20.0",
     "typescript": "^5.9.3",
