@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import { readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -18,6 +19,7 @@ import { markdownMath } from "../shared/markdown-math.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const require = createRequire(import.meta.url);
+const pinnedRelease = JSON.parse(readFileSync(path.join(root, "upstream-sync.json"), "utf8")).upstream.release;
 const sdkRequire = createRequire(
   new URL("../.paseo-sdk/package.json", import.meta.url),
 );
@@ -329,7 +331,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     assert.equal(invalid.ok, false);
     console.log(
       JSON.stringify({
-        compiler: "released Paseo 0.11.2 runtime-entry compiler",
+        compiler: `released Paseo ${pinnedRelease} runtime-entry compiler`,
         manifest: "accepted by released strict manifest reader",
         client:
           "compiled client entry in registration harness (not UI rendering)",

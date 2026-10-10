@@ -1,5 +1,10 @@
 {
-  "upstream": { "repo": "https://github.com/getpaseo/paseo.git", "commit": "7868f5caf6515543a81ffc58fe941e15e917dcf9" },
+  "upstream": {
+    "repo": "https://github.com/getpaseo/paseo.git",
+    "release": "v0.11.2",
+    "commit": "75953250959979b8f088bbca8dbd6ee61d0151b1"
+  },
+  "adopted": [],
   "vendor": [
     { "local": "client/vendor/path.ts", "upstream": "packages/app/src/utils/path.ts", "headerLines": 1 },
     { "local": "client/vendor/assistant-file-links-parse.ts", "upstream": "packages/app/src/assistant-file-links/parse.ts" },

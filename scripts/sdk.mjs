@@ -1,8 +1,11 @@
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-export const revision = "7868f5caf6515543a81ffc58fe941e15e917dcf9";
+// The pin lives in upstream-sync.json (`upstream.commit`, the commit of `upstream.release`).
+const { upstream } = JSON.parse(readFileSync(new URL("../upstream-sync.json", import.meta.url), "utf8"));
+export const revision = upstream.commit;
 const source = fileURLToPath(new URL("../.paseo-sdk", import.meta.url));
 const update = process.argv.includes("--update");
 function run(command, args, cwd) {
@@ -66,4 +69,4 @@ run(
 run("npm", ["run", "build:relay:clean"], source);
 run("npm", ["run", "build:client:clean"], source);
 run("npm", ["run", "build:plugin:clean"], source);
-console.log(`Built genuine Paseo 0.11.2 SDK artifacts at ${revision}.`);
+console.log(`Built genuine Paseo SDK artifacts for ${upstream.release} at ${revision}.`);
