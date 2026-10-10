@@ -226,4 +226,4 @@ Record the results here under "Device results".
 
 ### Device results
 
-Pending.
+2026-10-10, Joe: iOS and Android pass — formulas render and stream; no visible input or scroll lag.

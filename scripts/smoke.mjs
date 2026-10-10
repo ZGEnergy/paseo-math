@@ -139,7 +139,7 @@ async function exerciseClientBundle(bundle, id) {
     ];
     const sourceOf = (row) =>
       row.kind === "plugin" ? row.data.text : row.text;
-    function assertMathRow(row, text) {
+    function assertMathRow(row, text, phase) {
       assert.equal(row.kind, "plugin", `Math projection missing for ${JSON.stringify(text)}`);
       assert.equal(row.pluginId, id);
       assert.equal(row.itemKind, "math-message");
@@ -148,7 +148,10 @@ async function exerciseClientBundle(bundle, id) {
           candidate.kind === row.itemKind && candidate.version === row.version,
       );
       assert.ok(renderer, "Projected math must have a registered renderer");
-      assert.deepEqual(renderer.schema.parse(row.data), { text });
+      assert.equal(row.version, 2);
+      const data = renderer.schema.parse(row.data);
+      assert.equal(data.text, text);
+      if (phase) assert.equal(data.phase, phase);
     }
     function stream(text, check) {
       let state = { tail: [], head: [] };

@@ -1,5 +1,10 @@
 import type { PluginTimelineItemProps } from "@getpaseo/plugin/client";
-import { copyText, Icon, useToast } from "@getpaseo/plugin/client/react-native";
+import {
+  copyText,
+  Icon,
+  useRevealedText,
+  useToast,
+} from "@getpaseo/plugin/client/react-native";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
   Linking,
@@ -19,6 +24,7 @@ import Markdown, {
   type RenderRules,
 } from "./generated/markdown.js";
 import { Formula } from "./formula.js";
+import { MathErrorBoundary } from "./error-boundary.js";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -53,7 +59,8 @@ const MemoizedMathMessage = memo(
     theme,
     layout,
   }: PluginTimelineItemProps<MathMessage>) {
-    const { text } = item.data;
+    const { text: sourceText, phase } = item.data;
+    const text = useRevealedText(sourceText, phase);
     const colors = theme.colors;
     const toast = useToast();
     const [width, setWidth] = useState(0);
@@ -228,44 +235,46 @@ const MemoizedMathMessage = memo(
 
     const copySource = useCallback(async () => {
       try {
-        await copyText(text);
+        await copyText(sourceText);
         toast.show("Source copied", { variant: "success" });
       } catch {
         toast.error("Unable to copy the source.");
       }
-    }, [text, toast]);
+    }, [sourceText, toast]);
 
     return (
-      <View
-        style={{ minWidth: 0, width: "100%", paddingRight: 44, minHeight: 44 }}
-        onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
-      >
-        <Markdown
-          markdownit={markdown}
-          style={styles}
-          rules={rules}
-          onLinkPress={onLinkPress}
+      <MathErrorBoundary source={sourceText}>
+        <View
+          style={{ minWidth: 0, width: "100%", paddingRight: 44, minHeight: 44 }}
+          onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
         >
-          {text}
-        </Markdown>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Copy source"
-          onPress={copySource}
-          style={({ pressed }) => ({
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: 44,
-            height: 44,
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: pressed ? 0.6 : 1,
-          })}
-        >
-          <Icon name="Copy" size={14} color={colors.foregroundMuted} />
-        </Pressable>
-      </View>
+          <Markdown
+            markdownit={markdown}
+            style={styles}
+            rules={rules}
+            onLinkPress={onLinkPress}
+          >
+            {text}
+          </Markdown>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Copy source"
+            onPress={copySource}
+            style={({ pressed }) => ({
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: 44,
+              height: 44,
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: pressed ? 0.6 : 1,
+            })}
+          >
+            <Icon name="Copy" size={14} color={colors.foregroundMuted} />
+          </Pressable>
+        </View>
+      </MathErrorBoundary>
     );
   },
   (previous, next) => {
@@ -273,6 +282,7 @@ const MemoizedMathMessage = memo(
     const b = next.theme.colors;
     return (
       previous.item.data.text === next.item.data.text &&
+      previous.item.data.phase === next.item.data.phase &&
       previous.host.id === next.host.id &&
       previous.layout.compact === next.layout.compact &&
       a.foreground === b.foreground &&
