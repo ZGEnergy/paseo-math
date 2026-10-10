@@ -1,7 +1,8 @@
 // Upstream drift report: what changed in getpaseo/paseo releases since the release this plugin is pinned to.
 // `npm run drift` prints a report (or `No drift.`), `--json` prints JSON, `--check-vendor` exits 1 when vendored
 // files differ from the pinned commit. `--from-release <tag>` / `--to-release <tag>` override the pinned and
-// latest release (tests use them to replay real history).
+// latest release (tests use them to replay real history). `--daemon-version <D>` is the production daemon version;
+// a signal recorded as `waiting` is raised again only when D differs from the one it waited on.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -48,6 +49,15 @@ export function exportNames(source) {
     /^export\s+(?:declare\s+)?(?:default\s+)?(?:async\s+)?(?:abstract\s+)?(?:const|let|var|function\*?|class|interface|type|enum|namespace)\s+([\w$]+)/gm;
   for (const [, name] of code.matchAll(declaration)) names.add(name);
   return [...names].sort();
+}
+
+// Triage state for a signal lives in upstream-sync.json `signals`: `{ state: "adopted" | "declined" }` is settled;
+// `{ state: "waiting", daemon: "<D>" }` stays settled until the production daemon version changes.
+export function isHandled(entry, daemonVersion) {
+  if (!entry) return false;
+  if (entry.state === "adopted" || entry.state === "declined") return true;
+  if (entry.state === "waiting") return daemonVersion === undefined || daemonVersion === entry.daemon;
+  return false;
 }
 
 // Which of `words` appear anywhere in packages/plugin/src at `ref`.
@@ -177,15 +187,18 @@ function main() {
   const repoSlug = new URL(state.upstream.repo).pathname.replace(/^\//, "").replace(/\.git$/, "");
   const newTags = releases.filter((tag) => compareReleases(tag, pinned) > 0 && compareReleases(tag, latest) <= 0);
 
-  const adopted = state.adopted ?? [];
+  const daemonVersion = flag("--daemon-version");
   const atLatest = signalsAt(sdk, latestCommit);
   const atMain = signalsAt(sdk, mainCommit);
   const signals = Object.fromEntries(
-    SIGNALS.map((word) => [word, { latest: atLatest[word], main: atMain[word], adopted: adopted.includes(word) }]),
+    SIGNALS.map((word) => {
+      const entry = state.signals?.[word];
+      return [word, { latest: atLatest[word], main: atMain[word], triage: entry ?? null, handled: isHandled(entry, daemonVersion) }];
+    }),
   );
 
   const report = {
-    release: { pinned, pinnedCommit, latest, latestCommit, newer },
+    release: { pinned, pinnedCommit, latest, latestCommit, newer, daemonVersion: daemonVersion ?? null },
     ...signals,
     renderer: commits(pinnedCommit, latestCommit, state.watch),
     sdk: sdkChanges(pinnedCommit, latestCommit),
@@ -194,7 +207,7 @@ function main() {
     earlyWarning: { main: mainCommit, commits: commits(latestCommit, mainCommit, state.watch) },
   };
 
-  const pending = SIGNALS.filter((word) => signals[word].latest && !signals[word].adopted);
+  const pending = SIGNALS.filter((word) => signals[word].latest && !signals[word].handled);
   if (args.includes("--json")) {
     console.log(JSON.stringify(report));
     return;

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { exportNames, signalsAt, stableReleases } from "../scripts/upstream-drift.mjs";
+import { exportNames, isHandled, signalsAt, stableReleases } from "../scripts/upstream-drift.mjs";
 
 const state = JSON.parse(readFileSync("upstream-sync.json", "utf8"));
 
@@ -34,6 +34,18 @@ describe("release helpers", () => {
     expect(exportNames(source)).toEqual(["* from ./star.js", "A", "C", "E", "G", "d", "f", "h"]);
   });
 
+  it("treats adopted and declined signals as handled, and waiting ones until the daemon version changes", () => {
+    expect(isHandled(undefined, "0.10.0")).toBe(false);
+    expect(isHandled({ state: "adopted" }, "0.12.0")).toBe(true);
+    expect(isHandled({ state: "declined", reason: "host output is worse" }, "0.12.0")).toBe(true);
+    const waiting = { state: "waiting", daemon: "0.10.0", needs: "0.12.0" };
+    expect(isHandled(waiting, "0.10.0")).toBe(true);
+    expect(isHandled(waiting, "0.12.0")).toBe(false);
+    expect(isHandled(waiting, "unknown")).toBe(false);
+    expect(isHandled(waiting, undefined)).toBe(true);
+    expect(isHandled({ state: "something-else" }, "0.10.0")).toBe(false);
+  });
+
   it("detects adoption signals in a plugin source tree", () => {
     const repo = mkdtempSync(path.join(tmpdir(), "drift-signal-"));
     try {
@@ -53,7 +65,9 @@ describe("release helpers", () => {
 // Each case fetches getpaseo/paseo over the network.
 describe("upstream drift report", { timeout: 120_000 }, () => {
   it("reports the latest stable release, never a prerelease", () => {
-    const { release } = drift();
+    const { release, addMarkdownExtension } = drift("--daemon-version", "0.10.0");
+    expect(release.daemonVersion).toBe("0.10.0");
+    expect(addMarkdownExtension).toHaveProperty("handled");
     expect(release.pinned).toBe(state.upstream.release);
     expect(release.latest).toMatch(/^v\d+\.\d+\.\d+$/);
     const tags = execFileSync("git", ["tag", "-l", "v*"], { cwd: ".paseo-sdk", encoding: "utf8" }).split("\n");
