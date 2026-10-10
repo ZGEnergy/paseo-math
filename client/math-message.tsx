@@ -193,7 +193,7 @@ const MemoizedMathMessage = memo(
             key={node.key}
             code={node.content.replace(/\n$/, "")}
             info={(node as ASTNode & { sourceInfo?: string }).sourceInfo}
-            theme={theme}
+            surface0={colors.surface0}
             style={[inherited, ruleStyles.fence]}
           />
         ),
@@ -202,12 +202,12 @@ const MemoizedMathMessage = memo(
             key={node.key}
             code={node.content.replace(/\n$/, "")}
             info={null}
-            theme={theme}
+            surface0={colors.surface0}
             style={[inherited, ruleStyles.code_block]}
           />
         ),
       };
-    }, [colors.foreground, host.id, theme, width]);
+    }, [colors.foreground, colors.surface0, host.id, width]);
 
     const onLinkPress = useCallback(
       (url: string) => {

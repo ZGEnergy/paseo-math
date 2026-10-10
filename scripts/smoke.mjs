@@ -283,6 +283,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     transformSync(plugin.bundles.clientBundle, {
       babelrc: false,
       configFile: false,
+      compact: true,
       plugins: [{ visitor: { Class(node) {
         throw node.buildCodeFrameError("Client classes must be lowered before Hermes eval");
       } } }],

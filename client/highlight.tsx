@@ -1,5 +1,4 @@
-import { darkHighlightColors, highlightCode, lightHighlightColors, type HighlightToken } from "./generated/highlight.js";
-import type { PluginTheme } from "@getpaseo/plugin";
+import type { HighlightToken } from "./generated/highlight.js";
 import { useMemo } from "react";
 import { Platform, Text, type TextStyle } from "react-native";
 
@@ -24,10 +23,16 @@ function isLight(hex: string): boolean {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 140;
 }
 
+// The generated module is ~1.4MB; require it on first use so plugin load does not evaluate it.
+let highlighter: typeof import("./generated/highlight.js") | undefined;
+function loadHighlighter() {
+  return (highlighter ??= require("./generated/highlight.js") as typeof import("./generated/highlight.js"));
+}
+
 function tokenize(code: string, ext: string | null): HighlightToken[][] | null {
   if (!ext || code.length > MAX_HIGHLIGHT_CHARS) return null;
   try {
-    return highlightCode(code, `x.${ext}`);
+    return loadHighlighter().highlightCode(code, `x.${ext}`);
   } catch {
     return null;
   }
@@ -36,19 +41,20 @@ function tokenize(code: string, ext: string | null): HighlightToken[][] | null {
 export function HighlightedCode({
   code,
   info,
-  theme,
+  surface0,
   style,
 }: {
   code: string;
   info: string | null | undefined;
-  theme: PluginTheme;
+  surface0: string;
   style: TextStyle | TextStyle[];
 }) {
   const lines = useMemo(() => tokenize(code, fenceExtension(info)), [code, info]);
-  // ponytail: host lets users pick a syntax theme; plugins cannot read it, so use light/dark defaults.
-  const palette = isLight(theme.colors.surface0) ? lightHighlightColors : darkHighlightColors;
   const mono = { fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" };
   if (!lines) return <Text selectable style={[style, mono]}>{code}</Text>;
+  // ponytail: host lets users pick a syntax theme; plugins cannot read it, so use light/dark defaults.
+  const { darkHighlightColors, lightHighlightColors } = loadHighlighter();
+  const palette = isLight(surface0) ? lightHighlightColors : darkHighlightColors;
   return (
     <Text selectable style={[style, mono]}>
       {lines.map((line, index) => (

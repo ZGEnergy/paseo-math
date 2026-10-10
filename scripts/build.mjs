@@ -116,6 +116,7 @@ const lowered = await transformAsync(await readFile(markdownFile, "utf8"), {
   filename: markdownFile,
   babelrc: false,
   configFile: false,
+  compact: true, // large bundles otherwise print a styling-deoptimised note
   plugins: [transformClasses],
 });
 if (!lowered?.code) throw new Error("Markdown class lowering produced no code");
@@ -147,6 +148,7 @@ const loweredHighlight = await transformAsync(await readFile(highlightFile, "utf
   filename: highlightFile,
   babelrc: false,
   configFile: false,
+  compact: true, // large bundles otherwise print a styling-deoptimised note
   plugins: [transformClasses],
 });
 if (!loweredHighlight?.code) throw new Error("Highlight class lowering produced no code");

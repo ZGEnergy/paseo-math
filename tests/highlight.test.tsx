@@ -15,25 +15,26 @@ describe("highlighted fences", () => {
   });
 
   it("colors keywords with the dark palette on a dark surface", () => {
-    const view = render(<HighlightedCode code="const x = 1" info="ts" theme={theme} style={{}} />);
+    const view = render(<HighlightedCode code="const x = 1" info="ts" surface0={theme.colors.surface0} style={{}} />);
     const keyword = spans(view.container).find((s) => s.textContent === "const");
     expect(keyword?.style.color).toBe(hexToRgb(darkHighlightColors.keyword));
   });
 
   it("picks the light palette on a light surface", () => {
-    const view = render(<HighlightedCode code="const x = 1" info="ts" theme={light} style={{}} />);
+    const view = render(<HighlightedCode code="const x = 1" info="ts" surface0={light.colors.surface0} style={{}} />);
     const keyword = spans(view.container).find((s) => s.textContent === "const");
     expect(keyword?.style.color).toBe(hexToRgb(lightHighlightColors.keyword));
   });
 
   it("skips highlighting past the host cap", () => {
     const code = "x".repeat(MAX_HIGHLIGHT_CHARS + 1);
-    const view = render(<HighlightedCode code={code} info="ts" theme={theme} style={{}} />);
+    const view = render(<HighlightedCode code={code} info="ts" surface0={theme.colors.surface0} style={{}} />);
     expect(spans(view.container, "span[style*='color']").length).toBe(0);
+    expect((view.container as unknown as Dom).textContent).toBe(code);
   });
 
   it("renders unknown languages as plain text", () => {
-    const view = render(<HighlightedCode code="hello" info="nosuchlang" theme={theme} style={{}} />);
+    const view = render(<HighlightedCode code="hello" info="nosuchlang" surface0={theme.colors.surface0} style={{}} />);
     expect((view.container as unknown as Dom).textContent).toBe("hello");
   });
 });
