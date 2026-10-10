@@ -1,5 +1,5 @@
 {
-  "name": "@q5m-ai/paseo-math",
+  "name": "@zgenergy/paseo-math",
   "version": "0.1.0",
   "private": true,
   "description": "Cross-platform Markdown and LaTeX rendering for Paseo 0.11+",
