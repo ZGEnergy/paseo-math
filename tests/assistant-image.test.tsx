@@ -50,6 +50,15 @@ describe("AssistantImage", () => {
     expect(call).toHaveBeenCalledTimes(1);
   });
 
+  it("reads again for a different message with the same source", async () => {
+    call.mockResolvedValue({ ok: true, mime: "image/png", base64: "REWRITTEN" });
+    const one = render(<AssistantImage source="iter/c.png" alt="c" workspaceRoot="/repo" hostId="h" messageKey="m1" />);
+    await waitFor(() => expect(html(one.container)).toContain("REWRITTEN"));
+    const two = render(<AssistantImage source="iter/c.png" alt="c" workspaceRoot="/repo" hostId="h" messageKey="m2" />);
+    await waitFor(() => expect(html(two.container)).toContain("REWRITTEN"));
+    expect(call).toHaveBeenCalledTimes(2);
+  });
+
   it("does not show the previous source's image while the next one loads", async () => {
     call.mockResolvedValueOnce({ ok: true, mime: "image/png", base64: "FIRST" });
     call.mockReturnValueOnce(new Promise(() => {}));

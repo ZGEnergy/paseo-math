@@ -10,8 +10,8 @@ const MAX_BYTES = 64 * 1024 * 1024;
 const entries = new Map<string, Entry>();
 let bytes = 0;
 
-export function imageKey(hostId: string, cwd: string, path: string): string {
-  return `${hostId}\0${cwd}\0${path}`;
+export function imageKey(scope: string, cwd: string, path: string): string {
+  return `${scope}\0${cwd}\0${path}`;
 }
 
 function get(key: string): Entry | undefined {

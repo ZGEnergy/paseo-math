@@ -14,11 +14,14 @@ export function AssistantImage({
   alt,
   workspaceRoot,
   hostId = "",
+  messageKey = "",
 }: {
   source: string;
   alt: string;
   workspaceRoot: string | undefined;
   hostId?: string;
+  /** Identifies the message occurrence, so a file rewritten for a later message is read again. */
+  messageKey?: string;
 }) {
   const call = useRpc(readImage);
   const trimmed = source.trim();
@@ -28,7 +31,7 @@ export function AssistantImage({
     : resolveFilePreviewReadTarget({ path: localFileSourceToPath(trimmed), workspaceRoot });
   const cwd = target?.cwd;
   const filePath = target?.path;
-  const key = cwd !== undefined && filePath !== undefined ? imageKey(hostId, cwd, filePath) : null;
+  const key = cwd !== undefined && filePath !== undefined ? imageKey(`${hostId}\0${messageKey}`, cwd, filePath) : null;
   // State is tagged with its key so a changed source never renders the previous image.
   const [loaded, setLoaded] = useState<{ key: string; result: ImageOutput | null } | null>(null);
   const cached = key ? peekImage(key) : undefined;

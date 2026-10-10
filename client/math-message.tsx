@@ -68,6 +68,7 @@ const MemoizedMathMessage = memo(
   function MathMessageView({
     agentId,
     item,
+    timestamp,
     host,
     theme,
     layout,
@@ -77,6 +78,7 @@ const MemoizedMathMessage = memo(
     const colors = theme.colors;
     const toast = useToast();
     const workspaceRoot = useAgent(agentId, (agent) => agent.cwd) ?? undefined;
+    const messageTime = timestamp.getTime();
     const [width, setWidth] = useState(0);
     const fontSize = layout.compact ? 14 : 16;
     const styles = useMemo(
@@ -252,6 +254,7 @@ const MemoizedMathMessage = memo(
             alt={String(node.attributes.alt ?? "")}
             workspaceRoot={workspaceRoot}
             hostId={host.id}
+            messageKey={`${agentId}\0${messageTime}`}
           />
         ),
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
@@ -278,6 +281,8 @@ const MemoizedMathMessage = memo(
       colors.foreground,
       colors.surface0,
       host.id,
+      agentId,
+      messageTime,
       onLinkPress,
       width,
       workspaceRoot,

@@ -40,6 +40,21 @@ describe("MathMessageView local images", () => {
     expect(view.getByText("doc")).toBeTruthy();
   });
 
+  it("re-reads the same path for a later message", async () => {
+    const reads = () => rpc.mock.calls.filter(([input]) => "path" in input && input.path === "iterate.png");
+    const text = "![x](iterate.png) and $a$";
+    const first = render(<MathMessageView {...props(text)} timestamp={new Date(1000)} />);
+    await waitFor(() => expect(html(first.container)).toContain("TESTPNG"));
+    first.unmount();
+    // The same message mounting again reuses the read; a newer message reads the file again.
+    const remount = render(<MathMessageView {...props(text)} timestamp={new Date(1000)} />);
+    await waitFor(() => expect(html(remount.container)).toContain("TESTPNG"));
+    expect(reads()).toHaveLength(1);
+    const later = render(<MathMessageView {...props(text)} timestamp={new Date(2000)} />);
+    await waitFor(() => expect(html(later.container)).toContain("TESTPNG"));
+    expect(reads()).toHaveLength(2);
+  });
+
   it("neither re-reads nor remounts an image when streamed text is appended", async () => {
     const reads = () => rpc.mock.calls.filter(([input]) => "path" in input && input.path === "stream.png");
     const view = render(<MathMessageView {...props("![x](stream.png) and $a$", "streaming")} />);
