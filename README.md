@@ -4,7 +4,7 @@ Markdown and LaTeX rendering for math-bearing assistant responses in Paseo, with
 
 ## Compatibility
 
-**Requires Paseo 0.8+ on both the host daemon and the client app; Paseo 0.7 is not supported.** The manifest targets stable Paseo `>=0.8.0`, with no upper bound. Build, typecheck, and compiler smoke validation use the released 0.8.0 SDK; future releases are not individually validated.
+**Requires Paseo 0.11+ on both the host daemon and the client app.** Build, typecheck, and compiler smoke validation use the 0.11.2 SDK at `getpaseo/paseo@7868f5caf6`.
 
 **Device testing is limited to the macOS app and Android**, previously using Paseo `0.8.0-beta.1`; stable 0.8.0 has not been revalidated on devices. iPhone/iPad and browser clients have not been validated. Automated tests are not a substitute for testing those clients.
 
