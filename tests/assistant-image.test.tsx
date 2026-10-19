@@ -18,6 +18,12 @@ describe("AssistantImage", () => {
     await waitFor(() => expect(html(view.container)).toContain("data:image/png;base64,AAAA"));
   });
 
+  it("decodes percent-encoded Markdown image paths", async () => {
+    call.mockResolvedValueOnce({ ok: true, mime: "image/png", base64: "BBBB" });
+    render(<AssistantImage source="shots/my%20%E5%9B%BE.png" alt="encoded" workspaceRoot="/repo" />);
+    await waitFor(() => expect(call).toHaveBeenCalledWith({ cwd: "/repo", path: "shots/my 图.png" }));
+  });
+
   it("uses web images directly", () => {
     const view = render(<AssistantImage source="https://x.test/a.png" alt="web" workspaceRoot={undefined} />);
     expect(html(view.container)).toContain("https://x.test/a.png");

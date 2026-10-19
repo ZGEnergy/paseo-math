@@ -24,6 +24,8 @@ describe("link classification", () => {
     expect(classifyHref("mailto:a@b.c")).toBe("mailto");
     expect(classifyHref("src/app.ts:12", "/repo")).toBe("file");
     expect(classifyHref("javascript:alert(1)")).toBe("unsupported");
+    expect(classifyHref("capture.png", "/repo")).toBe("file");
+    expect(classifyHref("docs/my%20notes.md", "/repo")).toBe("file");
     expect(isInlineCodePath("packages/app/src/index.ts")).toBe(true);
     expect(isInlineCodePath("npm run build")).toBe(false);
   });

@@ -10,7 +10,11 @@ export type HrefKind = "external" | "mailto" | "file" | "unsupported";
 export function classifyHref(href: string, workspaceRoot?: string): HrefKind {
   if (/^https?:\/\//i.test(href)) return "external";
   if (/^mailto:/i.test(href)) return "mailto";
-  const classified = classifyAssistantFileLink(href, { workspaceRoot });
+  const classified = classifyAssistantFileLink(href, {
+    workspaceRoot,
+    decodeHref: true,
+    explicitLink: true,
+  });
   if (classified && classified.kind !== "external") return "file";
   return "unsupported";
 }
