@@ -14,6 +14,7 @@ import {
   Linking,
   Platform,
   Pressable,
+  ScrollView,
   Text,
   View,
   processColor,
@@ -33,7 +34,7 @@ import { useSelectionCopy } from "./selection-copy.js";
 import { blockDataSet, formulaDataSet } from "./source-map.js";
 import { MathErrorBoundary } from "./error-boundary.js";
 import { HighlightedCode, MONO_FONT_FAMILY } from "./highlight.js";
-import { classifyHref, FilePathText, isInlineCodePath } from "./links.js";
+import { classifyHref, FilePathText, isInlineCodePath, LinkText } from "./links.js";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -92,6 +93,8 @@ const MemoizedMathMessage = memo(
     const rowRef = useRef<View>(null);
     useSelectionCopy(rowRef, sourceText);
     const fontSize = layout.compact ? 14 : 16;
+    // Same as density.blockGap in the host.
+    const blockGap = layout.compact ? 12 : 16;
     const styles = useMemo(
       () => ({
         body: {
@@ -100,29 +103,33 @@ const MemoizedMathMessage = memo(
           lineHeight: fontSize * 1.5,
         },
         textgroup: { flexShrink: 1 },
-        paragraph: { marginTop: 4, marginBottom: 8 },
+        // Blocks carry no margins; the body and blockquotes space them with one gap.
+        paragraph: { marginTop: 0, marginBottom: 0 },
         heading1: {
           fontSize: fontSize * 1.8,
           lineHeight: fontSize * 2.3,
-          marginVertical: 8,
+          marginVertical: 0,
         },
         heading2: {
           fontSize: fontSize * 1.5,
           lineHeight: fontSize * 2,
-          marginVertical: 6,
+          marginVertical: 0,
         },
         heading3: {
           fontSize: fontSize * 1.25,
           lineHeight: fontSize * 1.75,
-          marginVertical: 4,
+          marginVertical: 0,
         },
         blockquote: {
           color: colors.foregroundMuted,
           backgroundColor: colors.surface1,
           borderColor: colors.border,
           paddingVertical: 4,
+          gap: blockGap,
         },
-        link: { color: colors.accent },
+        bullet_list: { gap: 4 },
+        ordered_list: { gap: 4 },
+        link: { color: colors.accent, textDecorationLine: "none" as const },
         code_inline: {
           color: colors.foreground,
           backgroundColor: colors.surface2,
@@ -140,12 +147,16 @@ const MemoizedMathMessage = memo(
           borderColor: colors.border,
         },
         hr: { backgroundColor: colors.border },
-        table: { borderColor: colors.border },
+        table: { borderColor: colors.border, flexGrow: 1 },
         tr: { borderColor: colors.border },
+        // ponytail: equal-width columns with a floor so wide tables overflow and scroll; content-sized columns need a measure pass.
+        th: { minWidth: 120 },
+        td: { minWidth: 120 },
         blocklink: { borderColor: colors.border },
       }),
       [
         fontSize,
+        blockGap,
         colors.foreground,
         colors.foregroundMuted,
         colors.surface1,
@@ -230,7 +241,7 @@ const MemoizedMathMessage = memo(
         // Each top-level block records its source line range for web selection copy
         // (dataSet is ignored on native, so skip the extra views there).
         body: (node, children, _parents, ruleStyles) => (
-          <View key={node.key} style={ruleStyles._VIEW_SAFE_body}>
+          <View key={node.key} style={[ruleStyles._VIEW_SAFE_body, { gap: blockGap }]}>
             {Platform.OS !== "web"
               ? children
               : children.map((child, index) => (
@@ -281,16 +292,20 @@ const MemoizedMathMessage = memo(
               {children}
             </FilePathText>
           ) : (
-            <Text
-              key={node.key}
-              style={ruleStyles.link}
-              accessibilityRole="link"
-              onPress={() => onLinkPress(href)}
-            >
+            <LinkText key={node.key} style={ruleStyles.link} onPress={() => onLinkPress(href)}>
               {children}
-            </Text>
+            </LinkText>
           );
         },
+        table: (node, children, _parents, ruleStyles) => (
+          <ScrollView
+            key={node.key}
+            horizontal
+            contentContainerStyle={{ minWidth: "100%" }}
+          >
+            <View style={ruleStyles._VIEW_SAFE_table}>{children}</View>
+          </ScrollView>
+        ),
         image: (node) => (
           <AssistantImage
             key={node.key}
@@ -321,6 +336,7 @@ const MemoizedMathMessage = memo(
         ),
       };
     }, [
+      blockGap,
       colors.accent,
       colors.foreground,
       colors.surface0,

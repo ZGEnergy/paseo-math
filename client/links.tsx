@@ -1,5 +1,5 @@
-import { Text, type TextStyle } from "react-native";
-import type { ReactNode } from "react";
+import { Text, type TextProps, type TextStyle } from "react-native";
+import { useState, type ReactNode } from "react";
 import {
   classifyAssistantFileLink,
   isFileLookingAssistantToken,
@@ -21,6 +21,34 @@ export function classifyHref(href: string, workspaceRoot?: string): HrefKind {
 
 export function isInlineCodePath(text: string): boolean {
   return isFileLookingAssistantToken(text);
+}
+
+/** A pressable link, underlined only while a pointer hovers it, as in the host. */
+export function LinkText({
+  children,
+  style,
+  onPress,
+}: {
+  children: ReactNode;
+  style?: TextProps["style"];
+  onPress: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  // RN-web forwards mouse props to the DOM; React Native's Text types omit them.
+  const hover = {
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
+  } as Partial<TextProps>;
+  return (
+    <Text
+      {...hover}
+      style={[style, { textDecorationLine: hovered ? "underline" : "none" }]}
+      accessibilityRole="link"
+      onPress={onPress}
+    >
+      {children}
+    </Text>
+  );
 }
 
 /** Looks like a host file link; does nothing on press (plugins cannot open workspace files). */
