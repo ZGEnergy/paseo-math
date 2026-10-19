@@ -94,11 +94,14 @@ const showOrEmpty = (ref, file) => {
 
 // Vendor entries may be whole files or an excerpt: `lines` is the 1-based inclusive slice of the upstream file,
 // `headerLines` is how many leading local lines (our own comment) to skip before comparing.
-const rewrite = (text) => text.replaceAll('from "@/utils/path"', 'from "./path.js"');
+const rewrite = (text) =>
+  text
+    .replaceAll('from "@/utils/path"', 'from "./path.js"')
+    .replaceAll('from "./extensions"', 'from "./assistant-file-links-extensions.js"');
 function vendorDrift(state, commit) {
   return state.vendor.filter(({ local, upstream, lines, headerLines = 0 }) => {
     // Raw (untrimmed) so leading blank lines cannot shift the `lines` offsets.
-    let want = gitRaw(sdk, "show", `${commit}:${upstream}`);
+    let want = showOrEmpty(commit, upstream);
     if (lines) want = want.split("\n").slice(lines[0] - 1, lines[1]).join("\n");
     const have = readFileSync(path.join(root, local), "utf8").split("\n").slice(headerLines).join("\n");
     return rewrite(want).trim() !== have.trim();

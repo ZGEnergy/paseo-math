@@ -16,7 +16,7 @@ const { props } = await import("./fixtures.js");
 // tsconfig has no DOM lib (raw DOM stays web-only); type just what tests read.
 type Dom = { closest(selector: string): unknown };
 const dom = (element: unknown) => element as Dom;
-declare const getComputedStyle: (element: unknown) => { color: string };
+declare const getComputedStyle: (element: unknown) => { color: string; textDecoration: string };
 
 describe("link classification", () => {
   it("matches the host classifier", () => {
@@ -24,6 +24,8 @@ describe("link classification", () => {
     expect(classifyHref("mailto:a@b.c")).toBe("mailto");
     expect(classifyHref("src/app.ts:12", "/repo")).toBe("file");
     expect(classifyHref("javascript:alert(1)")).toBe("unsupported");
+    expect(classifyHref("capture.png", "/repo")).toBe("file");
+    expect(classifyHref("docs/my%20notes.md", "/repo")).toBe("file");
     expect(isInlineCodePath("packages/app/src/index.ts")).toBe(true);
     expect(isInlineCodePath("npm run build")).toBe(false);
   });
@@ -34,6 +36,19 @@ describe("links in math messages", () => {
     const view = render(<MathMessageView {...props("See [docs](https://paseo.sh) and $x$")} />);
     fireEvent.click(view.getByText("docs"));
     expect(openExternalUrl).toHaveBeenCalledWith("https://paseo.sh");
+  });
+
+  it("underlines web links only while hovered", () => {
+    const view = render(<MathMessageView {...props("See [guide](https://paseo.sh) and $x$")} />);
+    const text = view.getByText("guide");
+    const link = dom(text).closest('[role="link"]');
+    const decoration = (element: unknown) => getComputedStyle(element).textDecoration;
+    expect(decoration(text)).not.toContain("underline");
+    expect(decoration(link)).not.toContain("underline");
+    fireEvent.mouseEnter(link as Element);
+    expect(decoration(link)).toContain("underline");
+    fireEvent.mouseLeave(link as Element);
+    expect(decoration(link)).not.toContain("underline");
   });
 
   it("renders file links styled and inert", () => {

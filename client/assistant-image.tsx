@@ -28,7 +28,7 @@ export function AssistantImage({
   const direct = /^(https?:|data:|blob:)/i.test(trimmed);
   const target = direct
     ? null
-    : resolveFilePreviewReadTarget({ path: localFileSourceToPath(trimmed), workspaceRoot });
+    : resolveFilePreviewReadTarget({ path: localFileSourceToPath(trimmed, { decodeHref: true }), workspaceRoot });
   const cwd = target?.cwd;
   const filePath = target?.path;
   const key = cwd !== undefined && filePath !== undefined ? imageKey(`${hostId}\0${messageKey}`, cwd, filePath) : null;

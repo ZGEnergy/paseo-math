@@ -1,15 +1,16 @@
 {
   "upstream": {
     "repo": "https://github.com/getpaseo/paseo.git",
-    "release": "v0.11.2",
-    "commit": "75953250959979b8f088bbca8dbd6ee61d0151b1"
+    "release": "v0.12.0",
+    "commit": "cafe4b01c8522ff39560241c5deb01427dc8dc5b"
   },
   "signals": {},
   "vendor": [
     { "local": "client/vendor/path.ts", "upstream": "packages/app/src/utils/path.ts", "headerLines": 1 },
+    { "local": "client/vendor/assistant-file-links-extensions.ts", "upstream": "packages/app/src/assistant-file-links/extensions.ts" },
     { "local": "client/vendor/assistant-file-links-parse.ts", "upstream": "packages/app/src/assistant-file-links/parse.ts" },
     { "local": "client/vendor/preview-target.ts", "upstream": "packages/app/src/file-explorer/preview-target.ts" },
-    { "local": "client/vendor/local-file-source.ts", "upstream": "packages/app/src/attachments/utils.ts", "headerLines": 3, "lines": [145, 184] }
+    { "local": "client/vendor/local-file-source.ts", "upstream": "packages/app/src/attachments/utils.ts", "headerLines": 3, "lines": [145, 192] }
   ],
   "watch": [
     "packages/app/src/components/markdown/",

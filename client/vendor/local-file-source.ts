@@ -1,4 +1,4 @@
-// Excerpt of getpaseo/paseo packages/app/src/attachments/utils.ts lines 145-184 at the commit in
+// Excerpt of getpaseo/paseo packages/app/src/attachments/utils.ts lines 145-192 at the commit in
 // upstream-sync.json (decodeFilePathSource ... localFileSourceToPath), copied verbatim. The rest of that file
 // imports host-only modules, so only the self-contained functions are vendored.
 function decodeFilePathSource(source: string): string {
@@ -32,12 +32,20 @@ export function fileUriToPath(uri: string): string {
   return normalizeWindowsDrivePath(decodedPath.replace(/^\/([A-Za-z]:[\\/])/, "$1"));
 }
 
-export function localFileSourceToPath(source: string): string {
+export function localFileSourceToPath(
+  source: string,
+  // Markdown destinations are URI-encoded; plain filesystem paths are not.
+  { decodeHref = false }: { decodeHref?: boolean } = {},
+): string {
+  if (/^(https?:|data:|blob:)/i.test(source)) {
+    return source;
+  }
   let path = source;
   if (source.startsWith("file://")) {
     path = fileUriToPath(source);
-  } else if (isMarkdownEncodedWindowsDrivePath(source)) {
+  } else if (decodeHref || isMarkdownEncodedWindowsDrivePath(source)) {
     path = decodeFilePathSource(source);
   }
   return normalizeWindowsDrivePath(path);
 }
+

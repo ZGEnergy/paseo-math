@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 // tsconfig has no DOM lib; type just what tests read.
 const html = (element: unknown) => (element as { innerHTML: string }).innerHTML;
+declare const getComputedStyle: (element: unknown) => unknown;
 
 const revealed = vi.fn((text: string, _phase: string) => text);
 vi.mock("@getpaseo/plugin/client/react-native", async (load) => ({
@@ -167,6 +168,37 @@ describe("MathMessageView selection copy", () => {
       e.getAttribute("data-q5m-math"),
     );
     expect(math).toEqual(["$x^2$"]);
+  });
+
+  it("separates top-level blocks with one gap that grows off compact layouts", () => {
+    const gapOf = (compact: boolean) => {
+      const view = render(
+        <MathMessageView {...{ ...props("# Title\n\nArea is $x^2$.\n\n- one"), layout: { compact, platform: "web" as const } }} />,
+      );
+      const block = (view.container as unknown as Query).querySelector("[data-q5m-lines]") as unknown as {
+        parentElement: unknown;
+      };
+      const style = getComputedStyle(block.parentElement as never) as unknown as {
+        getPropertyValue(name: string): string;
+      };
+      view.unmount();
+      return style.getPropertyValue("row-gap") || style.getPropertyValue("gap");
+    };
+    expect(gapOf(true)).toBe("12px");
+    expect(gapOf(false)).toBe("16px");
+  });
+
+  it("scrolls wide tables sideways", () => {
+    const view = render(<MathMessageView {...props("| a | b |\n|---|---|\n| 1 | 2 |\n\nwith $x$")} />);
+    const all = Array.from(
+      (view.container as unknown as { querySelectorAll(s: string): ArrayLike<unknown> }).querySelectorAll("*"),
+    ) as Array<{ textContent: string | null }>;
+    const scroller = all.find(
+      (element) =>
+        /^(auto|scroll)$/.test((getComputedStyle(element as never) as unknown as { overflowX: string }).overflowX) &&
+        element.textContent?.includes("1"),
+    );
+    expect(scroller).toBeTruthy();
   });
 
   it("puts markdown on the clipboard for a selection inside the row and prevents default", () => {
