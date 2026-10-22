@@ -133,6 +133,10 @@ $$
 i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi
 $$
 
+## Development dependencies
+
+`npm ci` and `npm run build` prepare the portable client bundle before typechecking or testing. `react-native-markdown-display` is a build dependency: `scripts/build.mjs` bundles its renderer and Markdown parser into the generated client asset, while Paseo supplies React and React Native at runtime. Keep the renderer's Markdown-it override aligned with the patched direct dependency. The production audit (`npm audit --omit=dev --audit-level=moderate`) covers the installed runtime dependency graph, not the development toolchain or generated bundle contents.
+
 ## Copying and rendering limits
 
 - The upper-right copy icon (**Copy source** for screen readers) copies the original source supplied to that plugin item. Paseo can split a response into native Markdown blocks, so this is not a guarantee of copying the entire assistant turn; multiple copy actions can appear in one response.
