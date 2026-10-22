@@ -52,7 +52,7 @@ For a reproducible install, replace `main` in the install command with an exact 
 
 ## Writing math
 
-Use `\(...\)` for inline math and `\[...\]` or `$$...$$` for display math. Ask the agent to return Markdown with LaTeX, **without wrapping its response in a code fence**; code remains literal.
+Use `\(...\)`, `$...$`, or GitHub-style `` $`...`$ `` for inline math and `\[...\]` or `$$...$$` for display math. Ask the agent to return Markdown with LaTeX, **without wrapping its response in a code fence**; ordinary code spans and non-math code fences remain literal.
 
 For example, ask:
 
