@@ -15,6 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@getpaseo/highlight": "0.11.2",
     "@resvg/resvg-wasm": "2.6.2",
     "markdown-it": "15.0.3",
     "mathjax-full": "3.2.2"
@@ -31,12 +32,14 @@
     "@getpaseo/plugin": "0.11.2",
     "@types/node": "^22.0.0",
     "@types/react": "~19.2.0",
+    "@types/react-test-renderer": "19.1.0",
     "esbuild": "^0.25.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-markdown-display": "7.0.2",
     "react-native-web": "0.21.2",
+    "react-test-renderer": "19.1.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.0",

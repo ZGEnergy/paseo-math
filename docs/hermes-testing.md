@@ -34,3 +34,8 @@ clipboard behavior, or formula image layout. Those still require device testing.
 
 Ordinary `npm run smoke` also rejects any remaining class syntax in the final
 client bundle, even when Hermes is unavailable in CI.
+
+The `@getpaseo/highlight` pre-bundle in `scripts/build.mjs` sets `minifyIdentifiers: true`
+because Paseo's compiler rewrites esbuild's `get: () => from[key]` interop helper by exact
+string match, and a top-level `from` in a dependency makes esbuild rename that parameter and
+defeat the rewrite. `smoke:hermes` guards this.

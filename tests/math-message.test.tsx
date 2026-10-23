@@ -4,15 +4,18 @@ import type { PluginTimelineItemProps } from "@getpaseo/plugin/client";
 import type { MathMessage } from "../shared/message.js";
 
 // Paseo injects both modules at runtime, so tests supply them.
-const revealed = vi.fn((text: string, _phase: string) => text);
 vi.mock("@getpaseo/plugin/client/react-native", () => ({
   Icon: () => null,
   copyText: async () => {},
   useToast: () => ({ show: () => {}, error: () => {} }),
-  useRevealedText: (text: string, phase: string) => revealed(text, phase),
 }));
 vi.mock("@getpaseo/plugin/client", () => ({
+  openExternalUrl: async () => {},
   useRpc: () => async () => ({ ok: false, reason: "invalid" }),
+}));
+const revealed = vi.fn((text: string, _phase: string) => text);
+vi.mock("../client/use-revealed-text.js", () => ({
+  useRevealedText: (text: string, phase: string) => revealed(text, phase),
 }));
 
 const { MathMessageView, isSameMathMessage } = await import("../client/math-message.js");

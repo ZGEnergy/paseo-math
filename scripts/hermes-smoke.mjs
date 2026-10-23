@@ -11,6 +11,16 @@ import { loadCompiledPlugin } from "./smoke.mjs";
 const hermes = process.env.HERMES_BIN;
 if (!hermes) throw new Error("Set HERMES_BIN to the RN 0.81 Hermes executable");
 const plugin = await loadCompiledPlugin();
+// The highlighter loads lazily, so nothing else evaluates its lowered lezer/codemirror
+// classes on Hermes. Expose client/highlight.tsx's tokenize() from inside the compiled
+// bundle (its scope is not reachable from the plugin entry) and call it once below.
+const tokenizeName = /function (tokenize\d*)\(code\d*, ext\d*\)/.exec(plugin.bundles.clientBundle)?.[1];
+if (!tokenizeName) throw new Error("tokenize() not found in the client bundle");
+const clientBundle = plugin.bundles.clientBundle.replace(
+  /return module\.exports;(\s*\}\))$/,
+  `module.exports.highlightProbe = function() { return ${tokenizeName}("const x = 1", "ts"); };\nreturn module.exports;$1`,
+);
+if (clientBundle === plugin.bundles.clientBundle) throw new Error("Could not append the highlight probe");
 const directory = await mkdtemp(path.join(os.tmpdir(), "paseo-math-hermes-"));
 try {
   const source = `
@@ -38,7 +48,7 @@ var atob = function(input) {
 };
 var allowed = ['react', 'react/jsx-runtime', 'react-native', 'zod',
   '@getpaseo/plugin/client', '@getpaseo/plugin/client/react-native', '@getpaseo/plugin'];
-var entry = (0, eval)(${JSON.stringify(plugin.bundles.clientBundle)})(function(name) {
+var entry = (0, eval)(${JSON.stringify(clientBundle)})(function(name) {
   check(allowed.indexOf(name) !== -1, 'Unexpected module: ' + name);
   return proxy;
 });
@@ -57,6 +67,9 @@ var result = transformers[0].transform({item: {text: text}});
 check(result && result.items[0].data.text === text, 'Math projection failed');
 check(!transformers[0].transform({item: {text: 'plain &amp; text'}}), 'Plain text transformed');
 check(!transformers[0].transform({item: {text: '\\x60$x$\\x60'}}), 'Code transformed');
+var lines = entry.highlightProbe();
+check(lines && lines[0] && lines[0].some(function(t) { return t.text === 'const' && t.style; }),
+  'Highlighter produced no styled tokens on Hermes');
 cleanup();
 print('Hermes evaluated client: setup, incremental math projection, fallbacks, cleanup passed');
 `;
