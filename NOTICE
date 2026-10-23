@@ -9,6 +9,13 @@ Paseo is Copyright 2025-present Mohamed Boudra, Apache-2.0.
 The build-time stable Markdown node-key adaptation follows:
 https://github.com/getpaseo/paseo/blob/c43df5d4c398571f62584b4ad5a629b5fd3b4599/patches/react-native-markdown-display%2B7.0.2.patch
 
+The local text reveal policy, hook, and policy tests adapt Paseo 0.11.2:
+https://github.com/getpaseo/paseo/tree/7868f5caf6515543a81ffc58fe941e15e917dcf9/packages/app/src
+Sources: agent-stream/text-reveal.ts, agent-stream/text-reveal.test.ts,
+and hooks/use-revealed-text.ts. Copyright 2025-present Mohamed Boudra,
+Apache-2.0. Local changes decouple the hook from host exports, reveal completed
+text immediately, and reset pacing when the source is replaced.
+
 Runtime dependency licenses remain in their npm packages and generated bundles:
 react-native-markdown-display (MIT), markdown-it (MIT), MathJax (Apache-2.0),
 resvg (MPL-2.0), and their respective dependencies. The unmodified resvg WASM

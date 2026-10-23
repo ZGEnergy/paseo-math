@@ -6,7 +6,6 @@ import { copyText, Icon, useToast } from "@getpaseo/plugin/client/react-native";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
   Linking,
-  Platform,
   Pressable,
   Text,
   View,
@@ -22,6 +21,7 @@ import Markdown, {
   type RenderRules,
 } from "./generated/markdown.js";
 import { Formula } from "./formula.js";
+import { HighlightedCode, MONO_FONT_FAMILY } from "./highlight.js";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -196,39 +196,35 @@ const MemoizedMathMessage = memo(
           <Text
             key={node.key}
             selectable
-            style={[inherited, ruleStyles.code_inline]}
+            style={[
+              inherited,
+              ruleStyles.code_inline,
+              { fontFamily: MONO_FONT_FAMILY },
+            ]}
           >
             {node.content}
           </Text>
         ),
         fence: (node, _children, _parents, ruleStyles, inherited = {}) => (
-          <Text
+          <HighlightedCode
             key={node.key}
-            selectable
-            style={[
-              inherited,
-              ruleStyles.fence,
-              { fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" },
-            ]}
-          >
-            {node.content.replace(/\n$/, "")}
-          </Text>
+            code={node.content.replace(/\n$/, "")}
+            info={(node as ASTNode & { sourceInfo?: string }).sourceInfo}
+            surface0={colors.surface0}
+            style={[inherited, ruleStyles.fence]}
+          />
         ),
         code_block: (node, _children, _parents, ruleStyles, inherited = {}) => (
-          <Text
+          <HighlightedCode
             key={node.key}
-            selectable
-            style={[
-              inherited,
-              ruleStyles.code_block,
-              { fontFamily: Platform.OS === "ios" ? "Courier" : "monospace" },
-            ]}
-          >
-            {node.content.replace(/\n$/, "")}
-          </Text>
+            code={node.content.replace(/\n$/, "")}
+            info={null}
+            surface0={colors.surface0}
+            style={[inherited, ruleStyles.code_block]}
+          />
         ),
       };
-    }, [colors.foreground, host.id, width]);
+    }, [colors.foreground, colors.surface0, host.id, width]);
 
     const onLinkPress = useCallback(
       (url: string) => {
@@ -289,6 +285,7 @@ const MemoizedMathMessage = memo(
       previous.layout.compact === next.layout.compact &&
       a.foreground === b.foreground &&
       a.foregroundMuted === b.foregroundMuted &&
+      a.surface0 === b.surface0 &&
       a.surface1 === b.surface1 &&
       a.surface2 === b.surface2 &&
       a.border === b.border &&

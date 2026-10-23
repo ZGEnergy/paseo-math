@@ -189,6 +189,11 @@ async function exerciseClientBundle(bundle, id) {
         expected: ["r_*", "Q^{r_*}", "e_{r_*}"],
       },
       {
+        text: "In a causal set $`(C,\\prec)`$, let $`s`$ precede $`e_1,e_2`$.",
+        firstClose: "In a causal set $`(C,\\prec)`$".length,
+        expected: [String.raw`(C,\prec)`, "s", "e_1,e_2"],
+      },
+      {
         text: String.raw`Inline \(x+y\) followed by an intact suffix.`,
         firstClose: String.raw`Inline \(x+y\)`.length,
         expected: ["x+y"],
@@ -280,6 +285,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     transformSync(plugin.bundles.clientBundle, {
       babelrc: false,
       configFile: false,
+      compact: true,
       plugins: [{ visitor: { Class(node) {
         throw node.buildCodeFrameError("Client classes must be lowered before Hermes eval");
       } } }],
