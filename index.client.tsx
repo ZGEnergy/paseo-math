@@ -17,7 +17,7 @@ function setupPlugin(client: PluginClientContext) {
     schema: mathMessageSchema,
     Component: MathMessageView,
   });
-  // Carry the phase so the renderer can pace streamed text like the host.
+  // Carry the phase so the renderer can pace streamed text.
   client.addTimelineTransformer({
     id: "assistant-math",
     query: { itemType: "assistant_message" },

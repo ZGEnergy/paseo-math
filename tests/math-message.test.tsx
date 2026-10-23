@@ -21,7 +21,7 @@ vi.mock("../client/use-revealed-text.js", () => ({
 const { MathMessageView, isSameMathMessage } = await import("../client/math-message.js");
 
 const colors = {
-  foreground: "#e6edf3", foregroundMuted: "#8b949e", surface1: "#161b22",
+  foreground: "#e6edf3", foregroundMuted: "#8b949e", surface0: "#0d1117", surface1: "#161b22",
   surface2: "#21262d", border: "#30363d", accent: "#2f81f7",
 };
 
