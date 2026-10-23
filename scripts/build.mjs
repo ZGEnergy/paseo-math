@@ -120,6 +120,42 @@ const lowered = await transformAsync(await readFile(markdownFile, "utf8"), {
 });
 if (!lowered?.code) throw new Error("Markdown class lowering produced no code");
 await writeFile(markdownFile, lowered.code + "\n");
+// @getpaseo/highlight and its lezer/codemirror dependencies ship class syntax,
+// which Paseo's plugin compiler does not lower. Pre-bundle and lower it the same way.
+const highlightFile = path.join(root, "client/generated/highlight.js");
+await build({
+  stdin: {
+    contents: 'export * from "@getpaseo/highlight";',
+    resolveDir: root,
+    loader: "ts",
+  },
+  outfile: highlightFile,
+  bundle: true,
+  // Paseo's compiler rewrites esbuild's `get: () => from[key]` interop helper for Hermes by
+  // exact string match. The PHP grammar has a top-level `from`, which makes esbuild rename
+  // that helper's parameter to `from2` and defeats the rewrite (every named import then
+  // resolves to the last export on Hermes). Mangling top-level names keeps `from` out.
+  minifyIdentifiers: true,
+  format: "esm",
+  platform: "neutral",
+  mainFields: ["module", "main"],
+  target: "es2020",
+  define: { "process.env.NODE_ENV": '"production"' },
+  legalComments: "eof",
+});
+const loweredHighlight = await transformAsync(await readFile(highlightFile, "utf8"), {
+  filename: highlightFile,
+  babelrc: false,
+  configFile: false,
+  compact: true, // large bundles otherwise print a styling-deoptimised note
+  plugins: [transformClasses],
+});
+if (!loweredHighlight?.code) throw new Error("Highlight class lowering produced no code");
+await writeFile(highlightFile, loweredHighlight.code + "\n");
+await writeFile(
+  path.join(root, "client/generated/highlight.d.ts"),
+  'export * from "@getpaseo/highlight";\n',
+);
 // The pinned renderer's declarations still import Markdown 10's private Token
 // path. Keep its real types, adapted to the public Markdown 15 export, alongside
 // the portable bundle. Do not modify installed dependency files.

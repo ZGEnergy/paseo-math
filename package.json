@@ -15,6 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@getpaseo/highlight": "0.11.2",
     "@resvg/resvg-wasm": "2.6.2",
     "markdown-it": "15.0.3",
     "mathjax-full": "3.2.2"
@@ -28,7 +29,7 @@
   "devDependencies": {
     "@babel/core": "7.29.0",
     "@babel/plugin-transform-classes": "7.28.6",
-    "@getpaseo/plugin": "0.8.0",
+    "@getpaseo/plugin": "0.11.2",
     "@types/node": "^22.0.0",
     "@types/react": "~19.2.0",
     "@types/react-test-renderer": "19.1.0",

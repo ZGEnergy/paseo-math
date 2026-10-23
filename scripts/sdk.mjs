@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-export const revision = "b8e24677e12b226c7c38c1c3a40649daa9f1152f";
+export const revision = "7868f5caf6515543a81ffc58fe941e15e917dcf9";
 const source = fileURLToPath(new URL("../.paseo-sdk", import.meta.url));
 const update = process.argv.includes("--update");
 function run(command, args, cwd) {
@@ -66,4 +66,4 @@ run(
 run("npm", ["run", "build:relay:clean"], source);
 run("npm", ["run", "build:client:clean"], source);
 run("npm", ["run", "build:plugin:clean"], source);
-console.log(`Built genuine Paseo 0.8.0 SDK artifacts at ${revision}.`);
+console.log(`Built genuine Paseo 0.11.2 SDK artifacts at ${revision}.`);

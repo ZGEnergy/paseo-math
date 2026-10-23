@@ -244,21 +244,18 @@ async function exerciseClientBundle(bundle, id) {
         [["assistant_message", assembled]],
       );
     });
-    // The host intentionally promotes Markdown blocks, not entire messages.
-    // A prose/math/prose message is three correct rows, not the old chunk bug.
+    // Since getpaseo/paseo#4675 the host transforms whole timeline items before
+    // Markdown splitting, so a prose/math/prose message reaches the plugin as
+    // one row and is rendered whole.
     const paragraphs = `Introduction.\n\n${displaySource}\n\nConclusion.`;
     const blocks = stream(paragraphs, (rows, assembled, complete) => {
       if (!complete) return;
       assert.deepEqual(
         rows.map((row) => [row.kind, sourceOf(row)]),
-        [
-          ["assistant_message", "Introduction."],
-          ["plugin", displaySource],
-          ["assistant_message", "Conclusion."],
-        ],
+        [["plugin", assembled]],
       );
     });
-    assertMathRow(blocks[1], displaySource);
+    assertMathRow(blocks[0], paragraphs);
     const user = {
       kind: "user_message",
       id: "user",
@@ -288,6 +285,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     transformSync(plugin.bundles.clientBundle, {
       babelrc: false,
       configFile: false,
+      compact: true,
       plugins: [{ visitor: { Class(node) {
         throw node.buildCodeFrameError("Client classes must be lowered before Hermes eval");
       } } }],
@@ -333,7 +331,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     assert.equal(invalid.ok, false);
     console.log(
       JSON.stringify({
-        compiler: "released Paseo 0.8.0 runtime-entry compiler",
+        compiler: "released Paseo 0.11.2 runtime-entry compiler",
         manifest: "accepted by released strict manifest reader",
         client:
           "compiled client entry in registration harness (not UI rendering)",
